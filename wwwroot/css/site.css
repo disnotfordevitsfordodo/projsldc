@@ -1,0 +1,190 @@
+/* =========================================================
+   SLDC Design System — โทนเดียวกันทั้งเว็บไซต์
+   ========================================================= */
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --ink: #1e293b;
+  --ink-2: #475569;
+  --muted: #94a3b8;
+  --line: #e8edf5;
+  --primary: #2563eb;
+  --primary-soft: #eff4ff;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --radius: 1rem;
+  --radius-sm: .65rem;
+  --shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 4px 16px rgba(15, 23, 42, .05);
+  --shadow-lg: 0 10px 30px rgba(15, 23, 42, .12);
+  --bs-primary: #2563eb;
+  --bs-primary-rgb: 37, 99, 235;
+  --bs-link-color: #2563eb;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--ink-2);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  font-size: .96rem;
+}
+main.main-content { flex: 1; padding-top: 1.5rem; padding-bottom: 2rem; }
+@media (min-width: 1400px) { main.main-content { max-width: 1320px; } }
+
+/* ---------- Navbar (สว่าง สะอาด) ---------- */
+.app-nav {
+  background: rgba(255, 255, 255, .92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, .02);
+}
+.app-nav .navbar-brand { gap: .75rem; }
+.brand-icon {
+  width: 38px; height: 38px; min-width: 38px; border-radius: .8rem;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, .3);
+}
+.brand-title { font-weight: 700; color: var(--ink); line-height: 1.15; font-size: 1rem; }
+.brand-sub { font-size: .7rem; color: var(--muted); }
+.app-nav .nav-link {
+  color: var(--ink-2); font-weight: 500; white-space: nowrap;
+  padding: .5rem .8rem !important; border-radius: .6rem; transition: .15s;
+}
+.app-nav .nav-link:hover { background: var(--primary-soft); color: var(--primary); }
+.app-nav .nav-link.active, .app-nav .nav-link.show { background: var(--primary-soft); color: var(--primary); }
+.app-nav .dropdown-menu {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); padding: .5rem; margin-top: .5rem; min-width: 15rem;
+}
+.app-nav .dropdown-item { border-radius: .55rem; padding: .5rem .85rem; font-size: .92rem; color: var(--ink-2); white-space: nowrap; }
+.app-nav .dropdown-item:hover { background: var(--primary-soft); color: var(--primary); }
+.app-nav .dropdown-header { font-size: .72rem; letter-spacing: .04em; color: var(--muted); }
+.user-chip {
+  display: inline-flex; align-items: center; gap: .5rem; padding: .3rem .75rem .3rem .35rem;
+  border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font-weight: 600; font-size: .88rem;
+}
+.user-chip .avatar {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--primary-soft); color: var(--primary);
+  display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700;
+}
+
+/* ---------- Page header ---------- */
+.page-head { display: flex; flex-wrap: wrap; gap: .75rem 1rem; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+.page-title, .page-head h4 {
+  font-size: 1.35rem; font-weight: 700; color: var(--ink); margin: 0 0 .15rem;
+  display: flex; align-items: center; gap: .6rem;
+}
+.page-title > i, .page-head h4 > i {
+  width: 38px; height: 38px; border-radius: .8rem; background: var(--primary-soft); color: var(--primary);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+.page-sub { color: var(--muted); font-size: .88rem; }
+.page-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+
+/* ---------- Cards ---------- */
+.card { border: 0; border-radius: var(--radius); box-shadow: var(--shadow); background: var(--surface); }
+.card-header {
+  background: transparent; border-bottom: 1px solid var(--line); font-weight: 700; color: var(--ink);
+  padding: .9rem 1.25rem; border-radius: var(--radius) var(--radius) 0 0 !important;
+}
+.card-header.bg-primary, .card-header.bg-white { background: transparent !important; color: var(--ink) !important; border-bottom: 1px solid var(--line) !important; }
+.card-header i { color: var(--primary); }
+.card-body { padding: 1.25rem; }
+.rounded-4 { border-radius: var(--radius) !important; }
+.shadow-sm { box-shadow: var(--shadow) !important; }
+
+/* ---------- Tables ---------- */
+.table { --bs-table-bg: transparent; color: var(--ink-2); }
+.table > thead { background: #f8fafc; }
+.table > thead th, .table-light th {
+  font-size: .78rem; font-weight: 700; text-transform: none; color: var(--ink-2);
+  background: #f8fafc !important; border-bottom: 1px solid var(--line); white-space: nowrap; padding: .75rem .9rem;
+}
+.table > tbody td { padding: .7rem .9rem; border-color: #f1f5f9; vertical-align: middle; }
+.table-hover > tbody > tr:hover > * { --bs-table-hover-bg: #f8fbff; }
+.table-responsive { border-radius: var(--radius); }
+
+/* ---------- Buttons & forms ---------- */
+.btn { border-radius: .65rem; font-weight: 600; }
+.btn-sm { border-radius: .55rem; }
+.btn-primary { --bs-btn-bg: #2563eb; --bs-btn-border-color: #2563eb; --bs-btn-hover-bg: #1d4ed8; --bs-btn-hover-border-color: #1d4ed8; }
+.btn-outline-secondary { --bs-btn-color: #64748b; --bs-btn-border-color: #d7deea; }
+.form-control, .form-select { border-radius: .65rem; border-color: #d7deea; padding: .55rem .8rem; }
+.form-control:focus, .form-select:focus { border-color: #93b4f8; box-shadow: 0 0 0 .2rem rgba(37, 99, 235, .12); }
+.form-label { color: var(--ink); }
+.input-group > .form-control:not(:last-child) { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.badge { font-weight: 600; border-radius: 999px; padding: .4em .7em; }
+
+/* ---------- Tabs / pills / list-group ---------- */
+.nav-tabs { border-bottom: 0; gap: .35rem; background: #eaeff8; padding: .3rem; border-radius: .85rem; display: inline-flex; flex-wrap: wrap; }
+.nav-tabs .nav-link { border: 0; border-radius: .65rem; color: var(--ink-2); font-weight: 600; padding: .45rem 1rem; }
+.nav-tabs .nav-link:hover { color: var(--primary); }
+.nav-tabs .nav-link.active { background: #fff; color: var(--primary); box-shadow: var(--shadow); }
+.nav-pills .nav-link { border-radius: .65rem; font-weight: 600; color: var(--ink-2); }
+.nav-pills .nav-link.active { background: var(--primary); color: #fff; }
+.list-group { border-radius: var(--radius); overflow: hidden; border: 0; }
+.list-group-item { border-color: var(--line); padding: .7rem 1rem; }
+.list-group-item.active { background: var(--primary-soft); color: var(--primary); border-color: var(--line); font-weight: 700; }
+
+/* ---------- Stat card (ใช้ร่วมกันทุกหน้า) ---------- */
+.stat { border-radius: var(--radius); padding: 1rem 1.1rem; background: var(--surface); box-shadow: var(--shadow); border-left: 5px solid var(--primary); }
+.stat-value { font-size: 1.7rem; font-weight: 700; color: var(--ink); line-height: 1.1; }
+.stat-label { font-size: .82rem; font-weight: 600; color: var(--ink-2); margin-top: .25rem; }
+
+/* ---------- Alerts ---------- */
+.alert { border: 0; border-radius: var(--radius); box-shadow: var(--shadow); }
+
+/* ---------- Footer ---------- */
+.app-footer { color: var(--muted); font-size: .82rem; padding: 1.25rem 0; text-align: center; }
+
+/* ---------- Login ---------- */
+.auth-wrap { min-height: calc(100vh - 220px); display: flex; align-items: center; justify-content: center; }
+.auth-card { width: 100%; max-width: 420px; padding: 2rem; }
+.auth-logo {
+  width: 56px; height: 56px; border-radius: 1.1rem; margin: 0 auto 1rem;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; font-size: 1.6rem;
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(37, 99, 235, .3);
+}
+
+/* ---------- Audience cards (หน้าส่งออกข้อมูล) ---------- */
+.aud-card { cursor: pointer; border: 2px solid transparent; transition: .15s; height: 100%; }
+.aud-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.aud-card.active { border-color: var(--primary); background: var(--primary-soft); }
+.aud-icon { width: 44px; height: 44px; border-radius: .9rem; display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+.ds-row { border: 1px solid var(--line); border-radius: .8rem; padding: .75rem 1rem; display: flex; gap: .75rem; cursor: pointer; transition: .12s; }
+.ds-row:hover { background: #f8fbff; }
+.ds-row:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+
+/* ---------- Survey form ---------- */
+.q-block { padding: .9rem 0; border-bottom: 1px dashed var(--line); }
+.q-block:last-child { border-bottom: 0; }
+.q-label { font-weight: 600; color: var(--ink); margin-bottom: .4rem; }
+.q-opts { display: flex; flex-wrap: wrap; gap: .4rem .6rem; }
+.q-opts .form-check { margin: 0; padding: .3rem .75rem .3rem 2.1rem; border: 1px solid var(--line); border-radius: .6rem; background: #fff; }
+.q-opts .form-check:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+
+/* ---------- Printable paper (แบบสำรวจ / ใบรายชื่อ) ---------- */
+.paper { background: #fff; color: #000; max-width: 210mm; margin: 0 auto 1.5rem; padding: 12mm 12mm; border-radius: .5rem; box-shadow: var(--shadow); font-size: 11pt; }
+.paper h1 { font-size: 15pt; font-weight: 700; text-align: center; margin: 0 0 2mm; }
+.paper h2 { font-size: 11.5pt; font-weight: 700; background: #e9eef7; padding: 1.2mm 3mm; margin: 4mm 0 2mm; border-left: 3px solid #2563eb; }
+.paper .box { display: inline-block; width: 3.4mm; height: 3.4mm; border: .3mm solid #000; margin: 0 1.2mm 0 3mm; vertical-align: -.4mm; }
+.paper .line { display: inline-block; min-width: 30mm; border-bottom: .3mm dotted #000; height: 4.5mm; vertical-align: bottom; }
+.paper table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+.paper th, .paper td { border: .3mm solid #444; padding: 1mm 1.5mm; vertical-align: top; }
+.paper th { background: #f0f3f9; text-align: center; }
+.paper .qrow { margin: 1.2mm 0; line-height: 1.6; }
+.paper-landscape { max-width: 297mm; }
+.page-break { page-break-after: always; break-after: page; }
+
+/* ---------- Print ---------- */
+@media print {
+  body { background: #fff !important; }
+  .app-nav, .app-footer, .no-print { display: none !important; }
+  main.main-content { padding: 0 !important; max-width: none !important; }
+  .paper { box-shadow: none; margin: 0; padding: 0; max-width: none; border-radius: 0; }
+  .card { box-shadow: none !important; border: 1px solid #ddd; }
+}
