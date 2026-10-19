@@ -1,0 +1,15 @@
+@model AssessFormVm
+@{ var f = Model.Form; ViewData["Title"] = "ผลประเมินความยากจนและความเปราะบาง"; }
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4></div></div><div class="text-muted small mb-3">@Model.MemberName (คะแนน 0-100)</div>
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<div class="card border-0 shadow-sm rounded-4" style="max-width:760px"><div class="card-body p-4">
+<form asp-action="AssessEdit" method="post" autocomplete="off"><input type="hidden" name="MemberId" value="@f.MemberId" /><div class="row g-3">
+  <div class="col-md-4"><label class="form-label small fw-semibold">ด้านรายได้</label><input type="number" min="0" max="100" name="IncomeScore" value="@f.IncomeScore" class="form-control" /></div>
+  <div class="col-md-4"><label class="form-label small fw-semibold">ด้านสุขภาพ</label><input type="number" min="0" max="100" name="HealthScore" value="@f.HealthScore" class="form-control" /></div>
+  <div class="col-md-4"><label class="form-label small fw-semibold">ภาวะพึ่งพิง</label><input type="number" min="0" max="100" name="DependencyScore" value="@f.DependencyScore" class="form-control" /></div>
+  <div class="col-md-4"><label class="form-label small fw-semibold">ด้านเงินออม</label><input type="number" min="0" max="100" name="SavingScore" value="@f.SavingScore" class="form-control" /></div>
+  <div class="col-md-4"><label class="form-label small fw-semibold">สิทธิสวัสดิการ</label><input type="number" min="0" max="100" name="WelfareScore" value="@f.WelfareScore" class="form-control" /></div>
+  <div class="col-md-4"><label class="form-label small fw-semibold">ผลการประเมิน</label><input name="ResultLabel" value="@f.ResultLabel" maxlength="50" class="form-control" /></div>
+  <div class="col-12"><label class="form-label small fw-semibold">สรุปผล</label><textarea name="Summary" rows="4" maxlength="2000" class="form-control">@f.Summary</textarea></div>
+  <div class="col-12"><button class="btn btn-success rounded-3 px-4">บันทึก</button> <a class="btn btn-outline-secondary rounded-3 px-4" href="javascript:history.back()">ยกเลิก</a></div>
+</div></form></div></div>

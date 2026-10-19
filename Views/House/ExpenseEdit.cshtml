@@ -1,0 +1,29 @@
+@model ExpenseFormVm
+@{
+    var f = Model.Form;
+    ViewData["Title"] = "ค่าใช้จ่ายและหนี้สินครัวเรือน";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    string V(decimal? d) => d?.ToString("0.##", inv) ?? "";
+    var debts = new (string Name, string Label, decimal? Val)[] {
+        ("DebtSavingsGroup", "กลุ่มออมทรัพย์", f.DebtSavingsGroup), ("DebtCooperative", "สหกรณ์", f.DebtCooperative), ("DebtBaac", "ธ.ก.ส.", f.DebtBaac),
+        ("DebtGovBank", "ธนาคารรัฐ", f.DebtGovBank), ("DebtOtherBank", "ธนาคารอื่น", f.DebtOtherBank), ("DebtFinanceCo", "บริษัทเงินทุน/ไฟแนนซ์", f.DebtFinanceCo),
+        ("DebtInformal", "หนี้นอกระบบ", f.DebtInformal), ("DebtCapital", "กองทุน", f.DebtCapital), ("DebtOther", "อื่น ๆ", f.DebtOther) };
+    var exps = new (string Name, string Label, decimal? Val)[] {
+        ("CostOfLiving", "ค่าครองชีพ", f.CostOfLiving), ("NeededExpense", "รายจ่ายจำเป็น", f.NeededExpense), ("InternetExpense", "ค่าอินเทอร์เน็ต", f.InternetExpense),
+        ("UnneededExpense", "รายจ่ายไม่จำเป็น", f.UnneededExpense), ("TotalExpense", "รายจ่ายรวม", f.TotalExpense) };
+}
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4></div></div>
+<div class="text-muted small mb-3">บ้านรหัส @Model.HouseCode (จำนวนเงินหน่วยบาท)</div>
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<form asp-action="ExpenseEdit" method="post" autocomplete="off">
+  <input type="hidden" name="HouseId" value="@f.HouseId" />
+  <div class="card border-0 shadow-sm rounded-4 mb-3"><div class="card-header fw-bold">ค่าใช้จ่าย</div><div class="card-body"><div class="row g-3">
+    @foreach (var e in exps) { <div class="col-md-4"><label class="form-label small fw-semibold">@e.Label</label><input type="number" min="0" step="0.01" name="@e.Name" value="@V(e.Val)" class="form-control" /></div> }
+    <div class="col-12 form-text">ถ้าเว้นว่าง "รายจ่ายรวม" ระบบจะรวม รายจ่ายจำเป็น + อินเทอร์เน็ต + ไม่จำเป็น ให้</div>
+  </div></div></div>
+  <div class="card border-0 shadow-sm rounded-4 mb-3"><div class="card-header fw-bold">หนี้สินแยกตามแหล่ง (หนี้สินรวมคำนวณให้อัตโนมัติ)</div><div class="card-body"><div class="row g-3">
+    @foreach (var e in debts) { <div class="col-md-4"><label class="form-label small fw-semibold">@e.Label</label><input type="number" min="0" step="0.01" name="@e.Name" value="@V(e.Val)" class="form-control" /></div> }
+  </div></div></div>
+  <button class="btn btn-success rounded-3 px-4">บันทึก</button>
+  <a class="btn btn-outline-secondary rounded-3 px-4" href="javascript:history.back()">ยกเลิก</a>
+</form>

@@ -1,0 +1,18 @@
+@model TumbolFormVm
+@{ var f = Model.Form; ViewData["Title"] = f.IsNew ? "เพิ่มตำบล" : "แก้ไขตำบล"; }
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4></div></div>
+@if (Model.Error != null) { <div class="alert alert-danger">@Model.Error</div> }
+<div class="card" style="max-width:600px"><div class="card-body">
+<form asp-action="TumbolEdit" method="post">
+  <input type="hidden" name="IsNew" value="@f.IsNew.ToString().ToLower()" />
+  <div class="mb-3"><label class="form-label">รหัสตำบล (6 หลัก)</label>
+    @if (f.IsNew) { <input name="TumbolId" value="@f.TumbolId" class="form-control" maxlength="6" required /> }
+    else { <input name="TumbolId" value="@f.TumbolId" class="form-control" readonly /> }</div>
+  <div class="mb-3"><label class="form-label">อำเภอ</label>
+    <select name="AmphurId" class="form-select" required><option value="">-- เลือกอำเภอ --</option>
+      @foreach (var a in Model.Amphurs) { <option value="@a.Id" selected="@(a.Id == f.AmphurId)">อ.@a.Name</option> }</select></div>
+  <div class="mb-3"><label class="form-label">ชื่อตำบล</label><input name="NameTh" value="@f.NameTh" class="form-control" required /></div>
+  <div class="mb-3"><label class="form-label">รหัสไปรษณีย์</label><input name="PostCode" value="@f.PostCode" class="form-control" maxlength="5" /></div>
+  <div class="mb-3"><label class="form-label">เป้าหมาย (ครัวเรือน)</label><input name="Target" type="number" value="@f.Target" class="form-control" /></div>
+  <button class="btn btn-primary">บันทึก</button> <a class="btn btn-outline-secondary" asp-action="Index" asp-route-tab="tumbol">ยกเลิก</a>
+</form></div></div>

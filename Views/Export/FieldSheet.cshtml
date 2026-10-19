@@ -1,0 +1,41 @@
+@model FieldSheetVm
+@{
+    ViewData["Title"] = "ใบรายชื่อลงพื้นที่";
+    var memberCount = Model.Houses.Sum(h => h.Members.Count);
+}
+<div class="page-head no-print">
+  <div><h4 class="page-title"><i class="bi bi-clipboard2-check"></i> ใบรายชื่อลงพื้นที่</h4>
+    <div class="page-sub">หมู่ @Model.Moo @Model.VillageName ต.@Model.TumbolName อ.@Model.AmphurName · @Model.Houses.Count หลัง · @memberCount คน</div></div>
+  <div class="page-actions">
+    <a class="btn btn-outline-secondary" asp-action="Index"><i class="bi bi-arrow-left"></i> กลับ</a>
+    <a class="btn btn-outline-primary" asp-action="Field" asp-route-villageId="@Model.VillageId" asp-route-year="@Model.Year" asp-route-format="csv"><i class="bi bi-filetype-csv"></i> ดาวน์โหลด CSV</a>
+    <a class="btn btn-outline-primary" asp-controller="Survey" asp-action="Print" asp-route-villageId="@Model.VillageId" asp-route-year="@Model.Year" target="_blank"><i class="bi bi-ui-checks-grid"></i> พิมพ์แบบสำรวจทั้งหมู่บ้าน</a>
+    <button class="btn btn-primary" onclick="window.print()"><i class="bi bi-printer"></i> พิมพ์</button>
+  </div>
+</div>
+<div class="paper paper-landscape">
+  <h1>ใบรายชื่อลงพื้นที่ตรวจสอบข้อมูล ปี พ.ศ. @Model.Year</h1>
+  <div class="text-center mb-2">หมู่ที่ @Model.Moo บ้าน@(Model.VillageName) ต.@Model.TumbolName อ.@Model.AmphurName จ.สกลนคร &nbsp;·&nbsp; ผู้สำรวจ <span class="line"></span> วันที่ <span class="line" style="min-width:25mm"></span></div>
+  <table>
+    <thead><tr><th>บ้าน</th><th>ชื่อ-นามสกุล</th><th>เลขประจำตัว</th><th>อายุ</th><th>เพศ</th><th>ความสัมพันธ์</th><th>อาชีพเดิม</th><th>บัตรเดิม</th>
+      <th>สถานะที่พบ</th><th>อาชีพ/รายได้ใหม่</th><th>หมายเหตุ</th></tr></thead>
+    @foreach (var h in Model.Houses)
+    {
+      <tbody style="page-break-inside:avoid">
+      @if (h.Members.Count == 0)
+      {
+        <tr><td><b>@h.HouseCode</b><br />@h.HouseNo</td><td colspan="10" class="text-muted">ไม่มีสมาชิกในระบบ</td></tr>
+      }
+      @for (var i = 0; i < h.Members.Count; i++)
+      {
+        var m = h.Members[i];
+        <tr>
+          @if (i == 0) { <td rowspan="@h.Members.Count"><b>@h.HouseCode</b><br />เลขที่ @h.HouseNo<br /><small>@h.Nearby</small></td> }
+          <td>@m.FullName</td><td>@m.CitizenMasked</td><td class="text-center">@m.Age</td><td>@m.Gender</td><td>@m.Relationship</td><td>@m.Occupation</td><td>@m.WelfareName</td>
+          <td style="font-size:8.5pt;white-space:nowrap"><span class="box" style="margin-left:0"></span>อยู่ <span class="box"></span>ย้าย <span class="box"></span>เสียชีวิต</td>
+          <td style="min-width:30mm"></td><td style="min-width:25mm"></td></tr>
+      }
+      </tbody>
+    }
+  </table>
+</div>

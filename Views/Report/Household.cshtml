@@ -1,0 +1,201 @@
+@model HouseholdVm
+@{
+    ViewData["Title"] = "ครัวเรือน";
+    string L(int i) => Model.Levels.Count >= i ? Model.Levels[i - 1].Name : "ระดับ " + i;
+    var pager = new PagerVm { Page = Model.Houses.Page, Pages = Model.Houses.Pages, Total = Model.Houses.Total,
+        Href = p => Url.Action("Household", new { year = Model.Year, amphurId = Model.Filter.AmphurId, tumbolId = Model.Filter.TumbolId, villageId = Model.VillageId, q = Model.Filter.Q, page = p }) };
+}
+
+<!-- ส่วนหัวเรื่อง (Header) -->
+<div class="page-head">
+  <div>
+    <h4 class="page-title">
+      <i class="bi bi-houses-fill"></i> ครัวเรือน (ปี พ.ศ. @Model.Year)
+    </h4>
+    <div class="page-sub">
+      ข้อมูลครัวเรือนจำแนกตามระดับความอยู่ดีมีสุข จังหวัดสกลนคร
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-success btn-sm rounded-3 px-3 fw-semibold shadow-sm" asp-controller="House" asp-action="HouseEdit"><i class="bi bi-house-add"></i> เพิ่มบ้าน</a>
+    <partial name="_YearSelect" model="Model.Year" />
+  </div>
+</div>
+
+<!-- การ์ดสรุปตัวเลข 5 ช่อง สไตล์ซอฟต์ -->
+<div class="row g-2 mb-4">
+  <!-- 1. ครัวเรือนทั้งหมด -->
+  <div class="col-12 col-sm-6 col-xl">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #f0f9ff; border-left: 5px solid #0284c7 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-3 fw-bold text-dark">@Model.TotalHouseholds.ToString("N0")</div>
+          <div class="small text-secondary fw-semibold mt-1">ครัวเรือนทั้งหมด</div>
+        </div>
+        <div class="rounded-circle p-2 d-flex align-items-center justify-content-center" style="background-color: rgba(2, 132, 199, 0.1); width: 46px; height: 46px;">
+          <i class="bi bi-houses fs-4 text-primary"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. อยู่ดี (ระดับ 1) -->
+  <div class="col-12 col-sm-6 col-xl">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #f0fdf4; border-left: 5px solid #16a34a !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-3 fw-bold text-dark">@Model.L1.ToString("N0")</div>
+          <div class="small text-secondary fw-semibold mt-1">@L(1) (คน)</div>
+        </div>
+        <div class="rounded-circle p-2 d-flex align-items-center justify-content-center" style="background-color: rgba(22, 163, 74, 0.1); width: 46px; height: 46px;">
+          <i class="bi bi-emoji-smile-fill fs-4 text-success"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. อยู่พอได้ (ระดับ 2) -->
+  <div class="col-12 col-sm-6 col-xl">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #ecfeff; border-left: 5px solid #0891b2 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-3 fw-bold text-dark">@Model.L2.ToString("N0")</div>
+          <div class="small text-secondary fw-semibold mt-1">@L(2) (คน)</div>
+        </div>
+        <div class="rounded-circle p-2 d-flex align-items-center justify-content-center" style="background-color: rgba(8, 145, 178, 0.1); width: 46px; height: 46px;">
+          <i class="bi bi-emoji-neutral-fill fs-4 text-info"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. อยู่ลำบาก (ระดับ 3) -->
+  <div class="col-12 col-sm-6 col-xl">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #fefce8; border-left: 5px solid #eab308 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-3 fw-bold text-dark">@Model.L3.ToString("N0")</div>
+          <div class="small text-secondary fw-semibold mt-1">@L(3) (คน)</div>
+        </div>
+        <div class="rounded-circle p-2 d-flex align-items-center justify-content-center" style="background-color: rgba(234, 179, 8, 0.15); width: 46px; height: 46px;">
+          <i class="bi bi-emoji-frown-fill fs-4 text-warning"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. อยู่ไม่ได้ (ระดับ 4) -->
+  <div class="col-12 col-sm-6 col-xl">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #fef2f2; border-left: 5px solid #dc2626 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-3 fw-bold text-dark">@Model.L4.ToString("N0")</div>
+          <div class="small text-secondary fw-semibold mt-1">@L(4) (คน)</div>
+        </div>
+        <div class="rounded-circle p-2 d-flex align-items-center justify-content-center" style="background-color: rgba(220, 38, 38, 0.1); width: 46px; height: 46px;">
+          <i class="bi bi-emoji-expressionless-fill fs-4 text-danger"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ตารางครัวเรือนแยกตามระดับความอยู่ดีมีสุข รายอำเภอ -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="card-header py-3 px-4 d-flex align-items-center justify-content-between border-0">
+    <div class="fw-bold fs-6 d-flex align-items-center gap-2">
+      <i class="bi bi-bar-chart-steps"></i> ตารางครัวเรือนแยกตามระดับความอยู่ดีมีสุข รายอำเภอ
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+      <thead class="table-light text-secondary border-bottom">
+        <tr>
+          <th class="py-3 px-4">อำเภอ</th>
+          <th class="py-3 px-3 text-end" style="width: 130px;">ครัวเรือน</th>
+          <th class="py-3 px-3 text-end" style="width: 120px;">@L(1)</th>
+          <th class="py-3 px-3 text-end" style="width: 120px;">@L(2)</th>
+          <th class="py-3 px-3 text-end" style="width: 120px;">@L(3)</th>
+          <th class="py-3 px-3 text-end" style="width: 120px;">@L(4)</th>
+          <th class="py-3 px-4 text-end" style="width: 180px;">สมาชิกเฉลี่ย/ครัวเรือน</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var r in Model.Happy)
+        {
+          <tr>
+            <td class="py-2.5 px-4 fw-semibold text-primary">อ.@r.AmphurName</td>
+            <td class="text-end fw-bold text-dark">@r.Households.ToString("N0")</td>
+            <td class="text-end text-secondary">@r.Level1People.ToString("N0")</td>
+            <td class="text-end text-secondary">@r.Level2People.ToString("N0")</td>
+            <td class="text-end text-secondary">@r.Level3People.ToString("N0")</td>
+            <td class="text-end text-secondary">@r.Level4People.ToString("N0")</td>
+            <td class="text-end text-muted px-4">@(r.AvgMembers?.ToString("0.0") ?? "-")</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Partial ตัวกรองค้นหา -->
+<div class="mb-4">
+  <partial name="_Filter" model="Model.Filter" />
+</div>
+
+<!-- รายชื่อบ้านทั้งหมด -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="card-header py-3 px-4 d-flex align-items-center justify-content-between border-bottom">
+    <div class="fw-bold fs-6 text-dark d-flex align-items-center gap-2">
+      <i class="bi bi-house-gear text-primary"></i> รายชื่อบ้านทั้งหมด
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+      <thead class="table-light text-secondary border-bottom">
+        <tr>
+          <th class="py-3 px-4" style="width: 160px;">รหัสบ้าน</th>
+          <th class="py-3 px-3" style="width: 120px;">บ้านเลขที่</th>
+          <th class="py-3 px-3">หมู่บ้าน / ตำบล / อำเภอ</th>
+          <th class="py-3 px-3 text-center" style="width: 140px;">ระดับ</th>
+          <th class="py-3 px-3 text-end" style="width: 120px;">ผู้อาศัย</th>
+          <th class="py-3 px-4 text-center" style="width: 230px;">การจัดการ</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var h in Model.Houses.Items)
+        {
+          <tr>
+            <td class="px-4 text-muted font-monospace fw-semibold">@h.HouseCode</td>
+            <td class="fw-semibold text-dark">@h.HouseNo</td>
+            <td class="text-secondary">@h.VillageName / ต.@h.TumbolName / อ.@h.AmphurName</td>
+            <td class="text-center">
+              <span class="badge bg-light text-dark border rounded-pill px-3 py-1 fw-normal" style="font-size: 0.75rem;">
+                @h.HappinessName
+              </span>
+            </td>
+            <td class="text-end fw-semibold text-dark">@h.Members คน</td>
+            <td class="text-center px-4">
+              <a class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1" style="font-size: 0.8rem;" href="@Url.Action("Detail", "House", new { code = h.HouseCode, year = Model.Year })">
+                รายละเอียด
+              </a>
+              <a class="btn btn-sm btn-outline-secondary rounded-3 px-2 py-1" style="font-size: 0.8rem;" asp-controller="House" asp-action="HouseEdit" asp-route-id="@h.HouseId">แก้ไข</a>
+              <form asp-controller="House" asp-action="HouseDelete" asp-route-id="@h.HouseId" method="post" class="d-inline" onsubmit="return confirm('ยืนยันการลบบ้านรหัส @h.HouseCode พร้อมสมาชิกทั้งหมด?')">
+                <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1" style="font-size: 0.8rem;">ลบ</button>
+              </form>
+            </td>
+          </tr>
+        }
+        @if (Model.Houses.Items.Count == 0)
+        {
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">ไม่พบข้อมูล</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer bg-white py-3 px-4 border-top">
+    <partial name="_Pager" model="pager" />
+  </div>
+</div>

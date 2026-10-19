@@ -1,0 +1,185 @@
+@model RepairVm
+@{ 
+    ViewData["Title"] = Model.Title; 
+    var house = Model.Kind == "house"; 
+    var act = house ? "House" : "Medical";
+    var ret = Context.Request.Path + Context.Request.QueryString;
+    var pager = new PagerVm { Page = Model.Page, Pages = Model.Pages, Total = Model.RowCount,
+        Href = p => Url.Action(act, new { status = Model.Status, q = Model.Q, page = p }) };
+}
+
+<!-- ส่วนหัวเรื่อง (Header) -->
+<div class="page-head">
+  <div>
+    <h4 class="page-title">
+      <i class="bi @(house ? "bi-tools text-primary" : "bi-bandaid text-info")"></i> @Model.Title
+    </h4>
+    <div class="page-sub">
+      @(house ? "ระบบติดตามและจัดการคำร้องขอการซ่อมแซมที่อยู่อาศัยของกลุ่มเปราะบาง" : "ระบบติดตามและบริการซ่อมแซมอุปกรณ์ทางการแพทย์")
+    </div>
+  </div>
+  <div class="page-actions"><a class="btn btn-success" asp-action="Create" asp-route-kind="@Model.Kind"><i class="bi bi-plus-lg"></i> ยื่นคำร้องใหม่</a></div>
+</div>
+
+<!-- การ์ดสรุปตัวเลข 4 ช่อง สไตล์ซอฟต์ -->
+<div class="row g-3 mb-4">
+  <!-- 1. คำร้อง / อุปกรณ์ทั้งหมด -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #f0f9ff; border-left: 5px solid #0284c7 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-2 fw-bold text-dark">@Model.Total.ToString("N0")</div>
+          <div class="small text-secondary fw-semibold mt-1">
+            <i class="bi bi-clipboard-list me-1 text-primary"></i>@(house ? "คำร้องทั้งหมด" : "อุปกรณ์ทั้งหมด")
+          </div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(2, 132, 199, 0.1); width: 54px; height: 54px;">
+          <i class="bi bi-clipboard-data-fill fs-3 text-primary"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ดำเนินการแล้ว / ซ่อมแซมเสร็จ -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #f0fdf4; border-left: 5px solid #16a34a !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-2 fw-bold text-dark">@Model.Done.ToString("N0")</div>
+          <div class="small text-secondary fw-semibold mt-1">
+            <i class="bi bi-check-circle me-1 text-success"></i>@(house ? "ดำเนินการแล้ว" : "ซ่อมแซมเสร็จ")
+          </div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(22, 163, 74, 0.1); width: 54px; height: 54px;">
+          <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. อยู่ระหว่างดำเนินการ / กำลังซ่อม -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #fefce8; border-left: 5px solid #eab308 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-2 fw-bold text-dark">@Model.InProgress.ToString("N0")</div>
+          <div class="small text-secondary fw-semibold mt-1">
+            <i class="bi bi-gear-wide-connected me-1 text-warning"></i>@(house ? "อยู่ระหว่างดำเนินการ" : "กำลังซ่อม")
+          </div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(234, 179, 8, 0.15); width: 54px; height: 54px;">
+          <i class="bi bi-gear-fill fs-3 text-warning"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. รอดำเนินการ / รอรับ -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #fef2f2; border-left: 5px solid #dc2626 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-2 fw-bold text-dark">@Model.Waiting.ToString("N0")</div>
+          <div class="small text-secondary fw-semibold mt-1">
+            <i class="bi bi-hourglass-split me-1 text-danger"></i>@(house ? "รอดำเนินการ" : "รอรับ")
+          </div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(220, 38, 38, 0.1); width: 54px; height: 54px;">
+          <i class="bi bi-hourglass-bottom fs-3 text-danger"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form method="get" asp-action="@act" class="row g-2 mb-3">
+  <div class="col-md-3"><select name="status" class="form-select" onchange="this.form.submit()">
+    <option value="">-- ทุกสถานะ --</option>
+    <option value="waiting" selected="@(Model.Status == "waiting")">รอดำเนินการ</option>
+    <option value="in_progress" selected="@(Model.Status == "in_progress")">อยู่ระหว่างดำเนินการ</option>
+    <option value="done" selected="@(Model.Status == "done")">ดำเนินการแล้ว</option></select></div>
+  <div class="col-md-5"><div class="input-group"><input name="q" value="@Model.Q" class="form-control" placeholder="ค้นหา ชื่อ / ประเภท" /><button class="btn btn-primary">ค้นหา</button></div></div>
+</form>
+
+<!-- ตารางรายการ -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="card-header py-3 px-4 d-flex align-items-center justify-content-between border-0">
+    <div class="fw-bold fs-6 d-flex align-items-center gap-2">
+      <i class="bi @(house ? "bi-house-gear" : "bi-bandaid")"></i> @(house ? "รายการซ่อมแซมบ้านเรือน" : "รายการอุปกรณ์ทางการแพทย์")
+    </div>
+  </div>
+  
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+      <thead class="table-light text-secondary border-bottom">
+        <tr>
+          <th class="py-3 px-3 text-center" style="width: 50px;">#</th>
+          <th class="py-3 px-3">@(house ? "ชื่อ-สกุล" : "ชื่อผู้รับบริการ")</th>
+          <th class="py-3 px-3">อำเภอ</th>
+          <th class="py-3 px-3">ตำบล</th>
+          <th class="py-3 px-3">@(house ? "ประเภทการซ่อม" : "ประเภทอุปกรณ์")</th>
+          @if (house) { 
+            <th class="py-3 px-3 text-end" style="width: 140px;">งบประมาณ (บาท)</th> 
+          } else { 
+            <th class="py-3 px-3">รายละเอียด</th> 
+          }
+          <th class="py-3 px-3 text-center" style="width: 130px;">สถานะ</th>
+          <th class="py-3 px-3 text-center" style="width: 110px;">@(house ? "วันที่" : "วันที่รับ")</th>
+          <th class="py-3 px-4 text-center" style="width: 220px;">เปลี่ยนสถานะ</th>
+        </tr>
+      </thead>
+      <tbody>
+        @{ var n = (Model.Page - 1) * 20; }
+        @foreach (var r in Model.Rows)
+        {
+          <tr>
+            <td class="text-center text-muted">@(++n)</td>
+            <td class="fw-semibold text-dark"><a class="text-decoration-none text-dark" asp-controller="House" asp-action="Person" asp-route-id="@r.MemberId">@r.FullName</a></td>
+            <td class="text-secondary">@r.AmphurName</td>
+            <td class="text-secondary">@r.TumbolName</td>
+            <td class="text-secondary">@r.ItemType</td>
+            @if (house) { 
+              <td class="text-end fw-bold text-dark">@((r.Budget ?? 0).ToString("N0"))</td> 
+            } else { 
+              <td class="text-secondary">@r.Detail</td> 
+            }
+            <td class="text-center">
+              <span class="badge @Lbl.StatusCss(r.Status) rounded-pill px-3 py-1 fw-normal" style="font-size: 0.75rem;">
+                @Lbl.Status(r.Status)
+              </span>
+            </td>
+            <td class="text-center text-muted">@r.ReqDate.ToString("dd/MM/yyyy")</td>
+            <td class="px-4">
+              <form asp-controller="Repair" asp-action="SetStatus" method="post" class="d-flex align-items-center gap-1">
+                <input type="hidden" name="kind" value="@Model.Kind" />
+                <input type="hidden" name="id" value="@r.RequestId" />
+                <input type="hidden" name="returnUrl" value="@ret" />
+                <select name="status" class="form-select form-select-sm rounded-3" style="font-size: 0.8rem;">
+                  <option value="waiting" selected="@(r.Status == "waiting")">รอดำเนินการ</option>
+                  <option value="in_progress" selected="@(r.Status == "in_progress")">อยู่ระหว่างดำเนินการ</option>
+                  <option value="done" selected="@(r.Status == "done")">ดำเนินการแล้ว</option>
+                </select>
+                <button class="btn btn-sm btn-primary rounded-3 px-2 py-1 fw-semibold" style="font-size: 0.8rem;">
+                  บันทึก
+                </button>
+              </form>
+              <div class="mt-1 d-flex gap-1">
+                <a class="btn btn-sm btn-outline-primary rounded-3 py-0" style="font-size: 0.78rem;" asp-action="Edit" asp-route-kind="@Model.Kind" asp-route-id="@r.RequestId"><i class="bi bi-pencil-square"></i> แก้ไข</a>
+                <form asp-controller="Repair" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('ยืนยันการลบคำร้องนี้?')">
+                  <input type="hidden" name="kind" value="@Model.Kind" /><input type="hidden" name="id" value="@r.RequestId" /><input type="hidden" name="returnUrl" value="@ret" />
+                  <button class="btn btn-sm btn-outline-danger rounded-3 py-0" style="font-size: 0.78rem;"><i class="bi bi-trash"></i> ลบ</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        }
+        @if (Model.Rows.Count == 0) { 
+          <tr>
+            <td colspan="9" class="text-center text-muted py-5">ยังไม่มีข้อมูลในระบบ</td>
+          </tr> 
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer bg-white"><partial name="_Pager" model="pager" /></div>
+</div>

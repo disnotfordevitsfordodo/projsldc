@@ -1,0 +1,42 @@
+@model SurveyDetailVm
+@using SLDC.Web.Data
+@{
+    ViewData["Title"] = "คำตอบแบบสำรวจ";
+    var h = Model.Sheet.Houses.FirstOrDefault();
+    string Show(string k) => Model.Values.TryGetValue(k, out var v) ? string.Join(", ", v) : "—";
+}
+<div class="page-head">
+  <div><h4 class="page-title"><i class="bi bi-clipboard2-check"></i> คำตอบแบบสำรวจ บ้าน @h?.HouseCode</h4>
+    <div class="page-sub">@Model.Sheet.VillageName ต.@Model.Sheet.TumbolName อ.@Model.Sheet.AmphurName · บันทึกโดย @(Model.Surveyor ?? "-") เมื่อ @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div></div>
+  <div class="page-actions no-print">
+    <a class="btn btn-outline-secondary" asp-action="Index"><i class="bi bi-arrow-left"></i> กลับ</a>
+    @if (h != null) { <a class="btn btn-primary" asp-action="Form" asp-route-houseId="@h.HouseId"><i class="bi bi-pencil-square"></i> แก้ไข / สำรวจซ้ำ</a> }
+    <button class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer"></i> พิมพ์</button>
+  </div>
+</div>
+@foreach (var s in SurveyDef.Sections)
+{
+  <div class="card mb-3"><div class="card-header"><i class="bi @s.Icon me-1"></i> @s.Title</div>
+    <div class="card-body"><div class="row g-3">
+      @foreach (var q in s.Qs) { <div class="col-md-6"><div class="small text-muted">@q.Label</div><div class="fw-semibold text-dark">@Show("q_" + q.Id)</div></div> }
+    </div></div></div>
+}
+@if (h != null)
+{
+  <div class="card mb-3"><div class="card-header"><i class="bi bi-people me-1"></i> สมาชิกในบ้าน</div>
+    <div class="table-responsive"><table class="table mb-0"><thead><tr><th>ชื่อ-นามสกุล</th>@foreach (var q in SurveyDef.MemberQs) { <th>@q.Label</th> }</tr></thead><tbody>
+    @foreach (var m in h.Members)
+    {
+      <tr><td class="fw-semibold">@m.FullName</td>@foreach (var q in SurveyDef.MemberQs) { <td>@Show($"m{m.MemberId}_{q.Id}")</td> }</tr>
+    }</tbody></table></div></div>
+}
+@if (Model.Values.Keys.Any(k => k.StartsWith("nm")))
+{
+  <div class="card mb-3"><div class="card-header"><i class="bi bi-person-plus me-1"></i> สมาชิกเพิ่มใหม่</div>
+    <div class="table-responsive"><table class="table mb-0"><thead><tr>@foreach (var q in SurveyDef.NewMemberQs) { <th>@q.Label</th> }</tr></thead><tbody>
+    @for (var i = 1; i <= SurveyDef.NewMemberRows; i++)
+    {
+      if (!Model.Values.ContainsKey($"nm{i}_name")) { continue; }
+      <tr>@foreach (var q in SurveyDef.NewMemberQs) { <td>@Show($"nm{i}_{q.Id}")</td> }</tr>
+    }</tbody></table></div></div>
+}

@@ -1,0 +1,55 @@
+@model MemberFormVm
+@{
+    var f = Model.Form; var L = Model.L;
+    ViewData["Title"] = "แก้ไขข้อมูลบุคคล";
+    var nowBe = DateTime.Now.Year + 543;
+    string[] months = { "", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม" };
+}
+<div class="page-head">
+  <div><h4 class="page-title"><i class="bi bi-person-gear"></i> @ViewData["Title"]</h4><div class="page-sub">บ้านรหัส @Model.HouseCode</div></div>
+  <div class="page-actions"><a class="btn btn-outline-secondary" href="javascript:history.back()"><i class="bi bi-arrow-left"></i> ย้อนกลับ</a></div>
+</div>
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<form asp-action="Edit" method="post" autocomplete="off">
+  <input type="hidden" name="MemberId" value="@f.MemberId" /><input type="hidden" name="HouseId" value="@f.HouseId" />
+  <div class="card border-0 shadow-sm rounded-4 mb-4"><div class="card-header fw-bold py-3 px-4">ข้อมูลบุคคล</div><div class="card-body p-4"><div class="row g-3">
+    <div class="col-md-2"><label class="form-label small fw-semibold">คำนำหน้า</label><select name="PrefixId" class="form-select"><option value="">-</option>
+      @foreach (var p in L.Prefixes) { <option value="@p.Id" selected="@(p.Id == f.PrefixId?.ToString())">@p.Name</option> }</select></div>
+    <div class="col-md-5"><label class="form-label small fw-semibold">ชื่อ</label><input name="FirstName" value="@f.FirstName" maxlength="100" class="form-control" required /></div>
+    <div class="col-md-5"><label class="form-label small fw-semibold">นามสกุล</label><input name="LastName" value="@f.LastName" maxlength="100" class="form-control" /></div>
+    <div class="col-md-5"><label class="form-label small fw-semibold">เลขบัตรประชาชน (13 หลัก)</label>
+      <input name="CitizenId" id="cid" value="@f.CitizenId" maxlength="13" inputmode="numeric" class="form-control font-monospace" />
+      <div class="form-check mt-2"><input class="form-check-input" type="checkbox" name="IsForeigner" id="foreigner" value="true" checked="@f.IsForeigner" /><label class="form-check-label small" for="foreigner">ชาวต่างชาติ (ไม่ตรวจหลักตรวจสอบ และเว้นเลขบัตรได้)</label></div></div>
+    <div class="col-md-3"><label class="form-label small fw-semibold">เพศ</label><select name="GenderId" class="form-select" required><option value="">-- เลือกเพศ --</option>
+      @foreach (var g in L.Genders) { <option value="@g.Id" selected="@(g.Id == f.GenderId?.ToString())">@g.Name</option> }</select></div>
+    <div class="col-md-4"><label class="form-label small fw-semibold">อาชีพ</label><select name="OccupationId" class="form-select"><option value="">-</option>
+      @foreach (var o in L.Occupations) { <option value="@o.Id" selected="@(o.Id == f.OccupationId?.ToString())">@o.Name</option> }</select></div>
+    <div class="col-md-4"><label class="form-label small fw-semibold">สถานภาพสมรส</label><select name="MaritalStatusId" class="form-select"><option value="">-</option>
+      @foreach (var x in L.MaritalStatuses) { <option value="@x.Id" selected="@(x.Id == f.MaritalStatusId?.ToString())">@x.Name</option> }</select></div>
+    <div class="col-md-4"><label class="form-label small fw-semibold">การศึกษา</label><select name="EducationId" class="form-select"><option value="">-</option>
+      @foreach (var x in L.Educations) { <option value="@x.Id" selected="@(x.Id == f.EducationId?.ToString())">@x.Name</option> }</select></div>
+    <div class="col-md-4"><label class="form-label small fw-semibold">ศาสนา</label><select name="ReligionId" class="form-select"><option value="">-</option>
+      @foreach (var x in L.Religions) { <option value="@x.Id" selected="@(x.Id == f.ReligionId?.ToString())">@x.Name</option> }</select></div>
+    <div class="col-md-4"><label class="form-label small fw-semibold">ความสัมพันธ์ในครัวเรือน</label><select name="RelationshipId" class="form-select"><option value="">-</option>
+      @foreach (var x in L.Relationships) { <option value="@x.Id" selected="@(x.Id == f.RelationshipId?.ToString())">@x.Name</option> }</select></div>
+    <div class="col-md-4"><label class="form-label small fw-semibold">สถานะทางกาย</label><select name="PhysicalStatusId" class="form-select"><option value="">-</option>
+      @foreach (var x in L.PhysicalStatuses) { <option value="@x.Id" selected="@(x.Id == f.PhysicalStatusId?.ToString())">@x.Name</option> }</select></div>
+    <div class="col-12"><label class="form-label small fw-semibold mb-0">วันเกิด (พ.ศ.)</label></div>
+    <div class="col-4 col-md-2"><input type="number" name="BirthDay" value="@f.BirthDay" min="1" max="31" placeholder="วัน" class="form-control" /></div>
+    <div class="col-8 col-md-3"><select name="BirthMonth" class="form-select"><option value="">เดือน</option>
+      @for (var m = 1; m <= 12; m++) { <option value="@m" selected="@(f.BirthMonth == m)">@months[m]</option> }</select></div>
+    <div class="col-6 col-md-2"><input type="number" name="BirthYear" value="@f.BirthYear" min="2400" max="@nowBe" placeholder="ปี พ.ศ." class="form-control" /></div>
+    <div class="col-6 col-md-2"><input type="number" name="Age" value="@f.Age" min="0" max="120" placeholder="หรือระบุอายุ (ปี)" class="form-control" /></div>
+    <div class="col-12 form-text mt-1">ถ้ากรอกปีเกิด ระบบคำนวณอายุให้อัตโนมัติ ถ้าไม่ทราบวันเกิดให้ระบุอายุเอง</div>
+  </div></div></div>
+  <div class="card border-0 shadow-sm rounded-4 mb-4"><div class="card-header fw-bold py-3 px-4">สถานะ</div><div class="card-body p-4">
+    <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="IsInformant" id="inf" value="true" checked="@f.IsInformant" /><label class="form-check-label" for="inf">เป็นผู้ให้ข้อมูล</label></div>
+    <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="IsHouseRegistration" id="reg" value="true" checked="@f.IsHouseRegistration" /><label class="form-check-label" for="reg">มีชื่อในทะเบียนบ้าน</label></div>
+    <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="IsSelfReliance" id="self" value="true" checked="@f.IsSelfReliance" /><label class="form-check-label" for="self">ช่วยเหลือตัวเองได้</label></div>
+    <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="IsDisabled" id="dis" value="true" checked="@f.IsDisabled" /><label class="form-check-label" for="dis">เป็นผู้พิการ</label></div>
+    <div class="form-check"><input class="form-check-input" type="checkbox" name="IsChronicPatient" id="chr" value="true" checked="@f.IsChronicPatient" /><label class="form-check-label" for="chr">เป็นผู้ป่วยโรคเรื้อรัง</label></div>
+  </div></div>
+  <button class="btn btn-success rounded-3 px-4 fw-semibold"><i class="bi bi-check-lg"></i> บันทึก</button>
+  <a class="btn btn-outline-secondary rounded-3 px-4" href="javascript:history.back()">ยกเลิก</a>
+</form>
+@section Scripts { <script>document.getElementById('cid').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 13); });</script> }

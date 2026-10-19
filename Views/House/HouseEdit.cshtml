@@ -1,0 +1,40 @@
+@model HouseFormVm
+@{
+    var f = Model.Form;
+    ViewData["Title"] = f.IsNew ? "เพิ่มบ้าน / ครัวเรือน" : "แก้ไขบ้าน";
+}
+<div class="page-head">
+  <div><h4 class="page-title"><i class="bi bi-house-gear"></i> @ViewData["Title"]</h4></div>
+  <div class="page-actions"><a class="btn btn-outline-secondary" href="javascript:history.back()"><i class="bi bi-arrow-left"></i> ย้อนกลับ</a></div>
+</div>
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<form asp-action="HouseEdit" method="post" autocomplete="off">
+  <input type="hidden" name="IsNew" value="@f.IsNew.ToString().ToLower()" />
+  <input type="hidden" name="HouseId" value="@f.HouseId" />
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header py-3 px-4 border-0 fw-bold"><i class="bi bi-geo-alt me-1"></i> พื้นที่</div>
+    <div class="card-body p-4"><partial name="_Picker" model="Model.Picker" /></div>
+  </div>
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header py-3 px-4 border-0 fw-bold"><i class="bi bi-house me-1"></i> ข้อมูลบ้าน</div>
+    <div class="card-body p-4"><div class="row g-3">
+      <div class="col-md-4"><label class="form-label small fw-semibold">รหัสบ้าน</label><input name="HouseCode" value="@f.HouseCode" maxlength="20" class="form-control font-monospace" required /></div>
+      <div class="col-md-3"><label class="form-label small fw-semibold">บ้านเลขที่</label><input name="HouseNo" value="@f.HouseNo" maxlength="30" class="form-control" /></div>
+      <div class="col-md-5"><label class="form-label small fw-semibold">จุดสังเกตใกล้เคียง</label><input name="HouseNearby" value="@f.HouseNearby" maxlength="255" class="form-control" /></div>
+      <div class="col-md-4"><label class="form-label small fw-semibold">ซอย</label><input name="Soi" value="@f.Soi" maxlength="100" class="form-control" /></div>
+      <div class="col-md-4"><label class="form-label small fw-semibold">ถนน</label><input name="Road" value="@f.Road" maxlength="100" class="form-control" /></div>
+      <div class="col-md-4"><label class="form-label small fw-semibold">ระดับความอยู่ดีมีสุข</label>
+        <select name="HappinessLevelId" class="form-select"><option value="">-</option>
+          @foreach (var l in Model.Levels) { <option value="@l.Id" selected="@(l.Id == f.HappinessLevelId?.ToString())">@l.Name</option> }</select></div>
+      <div class="col-md-3"><label class="form-label small fw-semibold">ละติจูด</label><input name="Latitude" value="@(f.Latitude?.ToString(System.Globalization.CultureInfo.InvariantCulture))" type="number" step="0.000001" class="form-control" /></div>
+      <div class="col-md-3"><label class="form-label small fw-semibold">ลองจิจูด</label><input name="Longitude" value="@(f.Longitude?.ToString(System.Globalization.CultureInfo.InvariantCulture))" type="number" step="0.000001" class="form-control" /></div>
+      <div class="col-md-3"><label class="form-label small fw-semibold">วันที่ลงนามยินยอม</label><input name="SignDate" value="@(f.SignDate?.ToString("yyyy-MM-dd"))" type="date" class="form-control" /></div>
+      <div class="col-md-3 d-flex align-items-end"><div class="form-check"><input class="form-check-input" type="checkbox" name="IsAgree" id="agree" value="true" checked="@f.IsAgree" /><label class="form-check-label" for="agree">ยินยอมให้เก็บข้อมูล</label></div></div>
+    </div></div>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-success rounded-3 px-4 fw-semibold"><i class="bi bi-check-lg"></i> บันทึก</button>
+    <a class="btn btn-outline-secondary rounded-3 px-4" href="javascript:history.back()">ยกเลิก</a>
+  </div>
+</form>
+@section Scripts { <partial name="_PickerScript" /> }

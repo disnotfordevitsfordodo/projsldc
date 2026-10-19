@@ -1,0 +1,18 @@
+@model VillageFormVm
+@{ var f = Model.Form; ViewData["Title"] = f.IsNew ? "เพิ่มหมู่บ้าน" : "แก้ไขหมู่บ้าน"; }
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4></div></div>
+@if (Model.Error != null) { <div class="alert alert-danger">@Model.Error</div> }
+<div class="card" style="max-width:600px"><div class="card-body">
+<form asp-action="VillageEdit" method="post">
+  <input type="hidden" name="IsNew" value="@f.IsNew.ToString().ToLower()" />
+  <div class="mb-3"><label class="form-label">รหัสหมู่บ้าน</label>
+    @if (f.IsNew) { <input name="VillageId" value="@f.VillageId" class="form-control" maxlength="12" required /> }
+    else { <input name="VillageId" value="@f.VillageId" class="form-control" readonly /> }</div>
+  <div class="mb-3"><label class="form-label">ตำบล</label>
+    <select name="TumbolId" class="form-select" required><option value="">-- เลือกตำบล --</option>
+      @foreach (var t in Model.Tumbols) { <option value="@t.Id" selected="@(t.Id == f.TumbolId)">@t.Name</option> }</select></div>
+  <div class="mb-3"><label class="form-label">หมู่ที่</label><input name="Moo" type="number" min="1" value="@f.Moo" class="form-control" required /></div>
+  <div class="mb-3"><label class="form-label">ชื่อหมู่บ้าน</label><input name="NameTh" value="@f.NameTh" class="form-control" required /></div>
+  <div class="mb-3"><label class="form-label">เป้าหมาย (ครัวเรือน)</label><input name="Target" type="number" value="@f.Target" class="form-control" /></div>
+  <button class="btn btn-primary">บันทึก</button> <a class="btn btn-outline-secondary" asp-action="Index" asp-route-tab="village">ยกเลิก</a>
+</form></div></div>

@@ -1,0 +1,45 @@
+@model RepairFormVm
+@{
+    var f = Model.Form; var house = f.Kind == "house";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+}
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<form asp-action="@(Model.IsNew ? "Create" : "Edit")" method="post" autocomplete="off">
+  <input type="hidden" name="Kind" value="@f.Kind" /><input type="hidden" name="RequestId" value="@f.RequestId" />
+  @if (Model.IsNew)
+  {
+    <div class="card border-0 shadow-sm rounded-4 mb-4"><div class="card-header fw-bold py-3 px-4">ผู้ยื่นคำร้อง</div>
+      <div class="card-body p-4"><partial name="_Picker" model="Model.Picker" /></div></div>
+  }
+  else
+  {
+    <input type="hidden" name="MemberId" value="@f.MemberId" />
+    <div class="alert alert-light border rounded-4">ผู้ยื่นคำร้อง: <b>@Model.MemberName</b></div>
+  }
+  <div class="card border-0 shadow-sm rounded-4 mb-4"><div class="card-header fw-bold py-3 px-4">@(house ? "รายละเอียดการซ่อมแซมบ้าน" : "รายละเอียดอุปกรณ์ทางการแพทย์")</div>
+    <div class="card-body p-4"><div class="row g-3">
+      <div class="col-md-6"><label class="form-label small fw-semibold">@(house ? "ประเภทการซ่อม" : "ประเภทอุปกรณ์")</label>
+        <input name="ItemType" value="@f.ItemType" list="suggest" maxlength="100" class="form-control" required />
+        <datalist id="suggest">@foreach (var s in Model.Suggestions) { <option value="@s"></option> }</datalist></div>
+      @if (house)
+      {
+        <div class="col-md-3"><label class="form-label small fw-semibold">งบประมาณ (บาท)</label><input type="number" min="0" step="0.01" name="Budget" value="@(f.Budget?.ToString("0.##", inv))" class="form-control" /></div>
+      }
+      <div class="col-md-3"><label class="form-label small fw-semibold">สถานะ</label>
+        <select name="Status" class="form-select">
+          <option value="waiting" selected="@(f.Status == "waiting")">รอดำเนินการ</option>
+          <option value="in_progress" selected="@(f.Status == "in_progress")">อยู่ระหว่างดำเนินการ</option>
+          <option value="done" selected="@(f.Status == "done")">ดำเนินการแล้ว</option></select></div>
+      <div class="col-md-3"><label class="form-label small fw-semibold">@(house ? "วันที่ยื่นคำร้อง" : "วันที่รับ")</label><input type="date" name="ReqDate" value="@(f.ReqDate?.ToString("yyyy-MM-dd"))" class="form-control" required /></div>
+      @if (house)
+      {
+        <div class="col-md-3"><label class="form-label small fw-semibold">วันที่แล้วเสร็จ</label><input type="date" name="FinishedDate" value="@(f.FinishedDate?.ToString("yyyy-MM-dd"))" class="form-control" /></div>
+      }
+      else
+      {
+        <div class="col-12"><label class="form-label small fw-semibold">รายละเอียด / อาการชำรุด</label><textarea name="Detail" rows="3" class="form-control">@f.Detail</textarea></div>
+      }
+    </div></div></div>
+  <button class="btn btn-success rounded-3 px-4 fw-semibold"><i class="bi bi-check-lg"></i> บันทึกคำร้อง</button>
+  <a class="btn btn-outline-secondary rounded-3 px-4" asp-action="@(house ? "House" : "Medical")">ยกเลิก</a>
+</form>

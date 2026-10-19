@@ -1,0 +1,119 @@
+@model HouseVm
+@{
+    ViewData["Title"] = "รายละเอียดบ้าน";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    var h = Model.Head;
+    var ex = Model.Expense;
+}
+<div class="page-head">
+  <div>
+    <h4 class="page-title"><i class="bi bi-house-door"></i> รหัสบ้าน @h.HouseCode</h4>
+    <div class="page-sub">หมู่บ้าน: @h.VillageName ต.@h.TumbolName อ.@h.AmphurName</div>
+  </div>
+  <div class="page-actions no-print">
+    <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> ย้อนกลับ</a>
+    <a class="btn btn-sm btn-primary" asp-action="HouseEdit" asp-route-id="@h.HouseId"><i class="bi bi-pencil-square"></i> แก้ไขบ้าน</a>
+    <a class="btn btn-sm btn-success" asp-controller="Population" asp-action="Create" asp-route-houseId="@h.HouseId"><i class="bi bi-person-plus"></i> เพิ่มสมาชิก</a>
+    <form asp-action="HouseDelete" asp-route-id="@h.HouseId" method="post" class="d-inline" onsubmit="return confirm('ยืนยันการลบบ้านรหัส @h.HouseCode พร้อมสมาชิกทั้งหมดในบ้าน?')">
+      <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> ลบบ้าน</button></form>
+    <div class="dropdown">
+      <button class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-clipboard2-check"></i> แบบสำรวจ</button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" asp-controller="Survey" asp-action="Form" asp-route-houseId="@h.HouseId"><i class="bi bi-pencil-square me-2"></i>บันทึกแบบสำรวจอัปเดต</a></li>
+        <li><a class="dropdown-item" asp-controller="Survey" asp-action="Print" asp-route-houseId="@h.HouseId" target="_blank"><i class="bi bi-printer me-2"></i>พิมพ์แบบสำรวจ (มีข้อมูลเดิม)</a></li>
+      </ul>
+    </div>
+    <button class="btn btn-sm btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer"></i> พิมพ์หน้านี้</button>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-6"><div class="card"><div class="card-body"><small class="text-muted">บ้านเลขที่</small><div class="fs-5">@(h.HouseNo ?? "-")</div></div></div></div>
+  <div class="col-md-6"><div class="card"><div class="card-body"><small class="text-muted">จำนวนผู้อาศัย</small><div class="fs-5">@Model.Members.Count คน</div></div></div></div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-6"><div class="card h-100"><div class="card-header">รูปภาพบ้าน</div><div class="card-body">
+    @if (Model.Images.Count == 0) { <div class="text-muted text-center py-3">ยังไม่มีรูปภาพบ้าน</div> }
+    @foreach (var img in Model.Images)
+    {
+      <div class="mb-3">
+        <img src="@img.FilePath" class="img-fluid rounded" alt="บ้าน" />
+        <div class="d-flex justify-content-between align-items-center mt-1">
+          <small class="text-muted">@img.Description</small>
+          <form asp-action="ImageDelete" asp-route-id="@img.ImageId" method="post" onsubmit="return confirm('ลบรูปภาพนี้?')"><button class="btn btn-sm btn-outline-danger no-print">ลบรูป</button></form>
+        </div>
+      </div>
+    }
+    <hr class="no-print" />
+    <form asp-action="ImageUpload" method="post" enctype="multipart/form-data" class="no-print">
+      <input type="hidden" name="houseId" value="@h.HouseId" />
+      <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp" class="form-control form-control-sm mb-2" required />
+      <input name="description" maxlength="500" class="form-control form-control-sm mb-2" placeholder="คำอธิบายรูป (ไม่บังคับ)" />
+      <button class="btn btn-sm btn-primary"><i class="bi bi-upload"></i> เพิ่มรูปภาพ (ไม่เกิน 5 MB)</button>
+    </form>
+  </div></div></div>
+  <div class="col-md-6"><div class="card h-100"><div class="card-header">พิกัดที่ตั้ง</div><div class="card-body">
+    @if (h.Latitude != null && h.Longitude != null)
+    {
+      <p>Lat: @h.Latitude, Lng: @h.Longitude</p>
+      <a class="btn btn-outline-primary btn-sm" target="_blank"
+         href="https://www.google.com/maps?q=@h.Latitude.Value.ToString(inv),@h.Longitude.Value.ToString(inv)">เปิดใน Google Maps</a>
+    }
+    else { <div class="text-muted">ยังไม่มีพิกัด (แก้ไขได้ที่ปุ่ม "แก้ไขบ้าน")</div> }
+  </div></div></div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-6"><div class="card h-100"><div class="card-header d-flex justify-content-between align-items-center">ค่าใช้จ่ายและหนี้สิน
+    <span class="no-print">
+      <a class="btn btn-sm btn-primary" asp-action="ExpenseEdit" asp-route-houseId="@h.HouseId">@(ex == null ? "เพิ่ม" : "แก้ไข")</a>
+      @if (ex != null)
+      { <form asp-action="ExpenseDelete" asp-route-houseId="@h.HouseId" method="post" class="d-inline" onsubmit="return confirm('ลบข้อมูลค่าใช้จ่ายของบ้านนี้?')"><button class="btn btn-sm btn-outline-danger">ลบ</button></form> }
+    </span></div>
+    <div class="card-body">
+    @if (ex == null) { <span class="text-muted">ยังไม่มีข้อมูล</span> }
+    else
+    {
+      <div class="row g-2 small">
+        <div class="col-6"><span class="text-muted">ค่าครองชีพ</span><div>@((ex.CostOfLiving ?? 0).ToString("N0")) บาท</div></div>
+        <div class="col-6"><span class="text-muted">รายจ่ายจำเป็น</span><div>@((ex.NeededExpense ?? 0).ToString("N0")) บาท</div></div>
+        <div class="col-6"><span class="text-muted">ค่าอินเทอร์เน็ต</span><div>@((ex.InternetExpense ?? 0).ToString("N0")) บาท</div></div>
+        <div class="col-6"><span class="text-muted">รายจ่ายไม่จำเป็น</span><div>@((ex.UnneededExpense ?? 0).ToString("N0")) บาท</div></div>
+        <div class="col-6"><span class="text-muted">รายจ่ายรวม</span><div class="fw-bold">@((ex.TotalExpense ?? 0).ToString("N0")) บาท</div></div>
+        <div class="col-6"><span class="text-muted">หนี้สินรวม</span><div class="fw-bold text-danger">@((ex.DebtTotal ?? 0).ToString("N0")) บาท</div></div>
+      </div>
+    }
+  </div></div></div>
+  <div class="col-md-6"><div class="card h-100"><div class="card-header d-flex justify-content-between align-items-center">การถือครองที่ดิน/ที่อยู่อาศัย
+    <a class="btn btn-sm btn-success no-print" asp-action="TenureEdit" asp-route-houseId="@h.HouseId">+ เพิ่ม</a></div>
+    <div class="card-body p-0">
+    @if (Model.Tenures.Count == 0) { <div class="text-muted p-3">ยังไม่มีข้อมูล</div> }
+    else
+    {
+      <table class="table table-sm mb-0"><thead><tr><th>วัตถุประสงค์</th><th>ประเภท</th><th class="text-end">พื้นที่ 1</th><th class="text-end">พื้นที่ 2</th><th>เอกสาร</th><th></th></tr></thead><tbody>
+      @foreach (var t in Model.Tenures)
+      {
+        <tr><td>@t.Purpose</td><td>@t.TenureType</td><td class="text-end">@t.Area1</td><td class="text-end">@t.Area2</td><td>@t.DocumentName</td>
+          <td class="text-nowrap no-print"><a class="btn btn-sm btn-outline-primary" asp-action="TenureEdit" asp-route-houseId="@h.HouseId" asp-route-id="@t.TenureId">แก้ไข</a>
+            <form asp-action="TenureDelete" method="post" class="d-inline" onsubmit="return confirm('ลบรายการนี้?')"><input type="hidden" name="houseId" value="@h.HouseId" /><input type="hidden" name="id" value="@t.TenureId" /><button class="btn btn-sm btn-outline-danger">ลบ</button></form></td></tr>
+      }
+      </tbody></table>
+    }
+  </div></div></div>
+</div>
+
+<div class="card"><div class="card-header">รายชื่อผู้อาศัยในบ้าน</div><div class="table-responsive"><table class="table table-hover mb-0">
+  <thead><tr><th>เลขประจำตัว</th><th>ชื่อ-นามสกุล</th><th>อายุ</th><th>เพศ</th><th>บัตรสวัสดิการ</th><th></th></tr></thead>
+  <tbody>
+  @foreach (var m in Model.Members)
+  {
+    <tr><td>@m.CitizenIdMasked</td><td>@m.FullName</td><td>@m.Age</td><td>@Lbl.Gender(m.GenderId)</td>
+        <td><span class="badge @Lbl.Css(m.WelfareStatusId)">@Lbl.Welfare(m.WelfareStatusId)</span></td>
+        <td class="text-nowrap no-print"><a class="btn btn-sm btn-primary" href="@Url.Action("Person", "House", new { id = m.MemberId })">ดู</a>
+          <a class="btn btn-sm btn-outline-primary" asp-controller="Member" asp-action="Edit" asp-route-id="@m.MemberId">แก้ไข</a>
+          <form asp-controller="Member" asp-action="Delete" asp-route-id="@m.MemberId" method="post" class="d-inline" onsubmit="return confirm('ยืนยันการลบ @m.FullName ?')"><button class="btn btn-sm btn-outline-danger">ลบ</button></form></td></tr>
+  }
+  @if (Model.Members.Count == 0) { <tr><td colspan="6" class="text-center text-muted py-3">ยังไม่มีสมาชิกในบ้านนี้</td></tr> }
+  </tbody>
+</table></div></div>

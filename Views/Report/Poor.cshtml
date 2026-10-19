@@ -1,0 +1,85 @@
+@model PoorVm
+@{ ViewData["Title"] = "รายงานครัวเรือนยากจน"; }
+
+<!-- ส่วนหัวเรื่อง (Banner Header) -->
+<div class="page-head">
+  <div>
+    <h4 class="page-title">
+      <i class="bi bi-house-exclamation-fill"></i> รายงานครัวเรือนยากจน
+    </h4>
+    <div class="page-sub">
+      ข้อมูลสรุปสถิติครัวเรือนยากจนในพื้นที่ ปี พ.ศ. @Model.Year
+    </div>
+  </div>
+  <div class="page-actions">
+    <partial name="_YearSelect" model="Model.Year" />
+  </div>
+</div>
+
+<!-- การ์ดสรุปยอดครัวเรือนยากจนทั้งหมด (Soft Card) -->
+<div class="card border-0 shadow-sm rounded-4 mb-3 p-3" style="background-color: #fef2f2; border-left: 5px solid #dc2626 !important;">
+  <div class="d-flex align-items-center justify-content-between px-3">
+    <div>
+      <div class="text-secondary fw-semibold small">จำนวนครัวเรือนยากจนทั้งหมด</div>
+      <div class="display-5 fw-bold text-danger my-1">@Model.Total.ToString("N0")</div>
+      <div class="small text-muted">ครัวเรือน</div>
+    </div>
+    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(220, 38, 38, 0.1); width: 64px; height: 64px;">
+      <i class="bi bi-houses-fill fs-2 text-danger"></i>
+    </div>
+  </div>
+</div>
+
+
+<!-- ตารางจำนวนครัวเรือนยากจนแยกตามหมู่บ้าน -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="card-header py-3 px-4 d-flex align-items-center justify-content-between border-0">
+    <div class="fw-bold fs-6 d-flex align-items-center gap-2">
+      <i class="bi bi-table"></i> จำนวนครัวเรือนยากจนแยกตามหมู่บ้าน
+    </div>
+    <div class="small opacity-75">
+      ทั้งหมด @Model.Rows.Count.ToString("N0") หมู่บ้าน
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+      <thead class="table-light text-secondary border-bottom">
+        <tr>
+          <th class="py-3 px-3 text-center" style="width: 60px;">ลำดับ</th>
+          <th class="py-3 px-3 text-center" style="width: 80px;">หมู่ที่</th>
+          <th class="py-3 px-3">หมู่บ้าน</th>
+          <th class="py-3 px-3">ตำบล</th>
+          <th class="py-3 px-3">อำเภอ</th>
+          <th class="py-3 px-3 text-end" style="width: 160px;">จำนวน (ครัวเรือน)</th>
+          <th class="py-3 px-4 text-center" style="width: 110px;">การจัดการ</th>
+        </tr>
+      </thead>
+      <tbody>
+        @{ var i = 0; }
+        @foreach (var r in Model.Rows)
+        {
+          <tr>
+            <td class="text-center text-muted">@(++i)</td>
+            <td class="text-center text-secondary">@r.Moo</td>
+            <td class="fw-semibold text-dark">@r.VillageName</td>
+            <td class="text-secondary">@r.TumbolName</td>
+            <td class="text-secondary">@r.AmphurName</td>
+            <td class="text-end fw-bold text-danger fs-6">@r.PoorHouseholds.ToString("N0")</td>
+            <td class="text-center px-4">
+              <a class="btn btn-sm btn-primary rounded-3 px-3 py-1 fw-semibold" style="font-size: 0.8rem;" href="@Url.Action("Household", "Report", new { year = Model.Year, villageId = r.VillageId })">
+                ดูข้อมูล
+              </a>
+            </td>
+          </tr>
+        }
+        @if (Model.Rows.Count == 0)
+        {
+          <tr>
+            <td colspan="7" class="text-center text-muted py-5">ไม่พบครัวเรือนยากจน</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

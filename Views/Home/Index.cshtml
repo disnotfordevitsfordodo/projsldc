@@ -1,0 +1,247 @@
+@model DashboardVm
+@{ ViewData["Title"] = "ภาพรวมประชากร"; }
+
+<div class="page-head">
+  <div>
+    <h4 class="page-title"><i class="bi bi-speedometer2"></i> ภาพรวมประชากรจังหวัดสกลนคร</h4>
+    <div class="page-sub">สรุปประชากร ครัวเรือน และบัตรสวัสดิการ ปี พ.ศ. @Model.Year — คลิกอำเภอบนแผนที่เพื่อดูรายตำบล</div>
+  </div>
+  <div class="page-actions"><partial name="_YearSelect" model="Model.Year" /></div>
+</div>
+
+<div class="row g-3">
+  <!-- ฝั่งซ้าย: การ์ดแผนที่พร้อม Tab Navigation -->
+  <div class="col-lg-7">
+    <div class="card border-0 rounded-4 h-100">
+      <div class="card-header border-0 pt-3 px-3">
+        <!-- แท็บสลับหน้าแผนที่ -->
+        <ul class="nav nav-pills nav-fill bg-light p-1 rounded-3 small">
+          <li class="nav-item">
+            <button class="nav-link active fw-bold py-2 shadow-sm" id="tab-district" data-bs-toggle="pill" data-bs-target="#pills-district" type="button">
+              <i class="bi bi-map-fill me-1"></i>แผนที่ระดับอำเภอ
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link text-secondary fw-bold py-2" id="tab-household" data-bs-toggle="pill" data-bs-target="#pills-household" type="button">
+              <i class="bi bi-geo-alt-fill me-1"></i>พิกัดหมุดครัวเรือน
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div class="card-body p-3">
+        <div class="tab-content" id="pills-tabContent">
+          <!-- แท็บ 1: แผนที่ระดับอำเภอ -->
+          <div class="tab-pane fade show active" id="pills-district">
+            <div id="sakon-map-wrap" class="sakon-map-wrap"><partial name="_SakonMap" /></div>
+          </div>
+          <!-- แท็บ 2: พิกัดหมุดครัวเรือน -->
+          <div class="tab-pane fade" id="pills-household">
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-pin-map fs-1 text-primary"></i>
+              <p class="mt-2">กำลังโหลดข้อมูลพิกัดหมุดครัวเรือน...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ฝั่งขวา: การ์ดสรุปสถิติ 4 ช่อง + แถบสวัสดิการ + กราฟเพศ -->
+  <div class="col-lg-5">
+    <!-- สรุปตัวเลข 4 ช่อง (ตาราง 2x2) -->
+    <div class="row g-2 mb-3">
+      <div class="col-6">
+        <div class="card border-0 rounded-4 p-3 h-100" style="background-color: #f0f9ff; border-left: 5px solid #0284c7 !important;">
+          <div class="small fw-semibold text-secondary"><i class="bi bi-people-fill me-1"></i>ประชากรทั้งหมด</div>
+          <div class="fs-2 fw-bold my-1 text-dark">@Model.Summary.Population.ToString("N0")</div>
+          <div class="small text-muted">คน</div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="card border-0 rounded-4 p-3 h-100" style="background-color: #f0fdf4; border-left: 5px solid #16a34a !important;">
+          <div class="small fw-semibold text-secondary"><i class="bi bi-house-door-fill me-1"></i>ครัวเรือนทั้งหมด</div>
+          <div class="fs-2 fw-bold my-1 text-dark">@Model.Summary.Households.ToString("N0")</div>
+          <div class="small text-muted">ครัวเรือน</div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="card border-0 rounded-4 p-3 h-100" style="background-color: #fffbeb; border-left: 5px solid #d97706 !important;">
+          <div class="small fw-semibold text-secondary"><i class="bi bi-person-fill me-1"></i>ผู้สูงอายุ (60+)</div>
+          <div class="fs-2 fw-bold my-1 text-dark">@Model.Summary.Elderly.ToString("N0")</div>
+          <div class="small text-muted">คน</div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="card border-0 rounded-4 p-3 h-100" style="background-color: #fef2f2; border-left: 5px solid #dc2626 !important;">
+          <div class="small fw-semibold text-secondary"><i class="bi bi-wheelchair me-1"></i>ผู้พิการ</div>
+          <div class="fs-2 fw-bold my-1 text-dark">@Model.Summary.Disabled.ToString("N0")</div>
+          <div class="small text-muted">คน</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- บัตรสวัสดิการแห่งรัฐ -->
+    <div class="card border-0 shadow-sm rounded-4 mb-3">
+      <div class="card-body p-3">
+        <div class="text-center fw-bold text-primary mb-1 small">บัตรสวัสดิการแห่งรัฐ</div>
+        <div class="text-center text-muted opacity-75 mb-3" style="font-size: 0.72rem;">จำนวนสมาชิก</div>
+
+        <div class="d-flex flex-column gap-2" style="font-size: 0.75rem;">
+          <!-- รายชื่อทั้งหมด -->
+          <div>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-secondary fw-semibold">รายชื่อทั้งหมด</span>
+              <span class="fw-bold text-dark">@Model.Summary.Population.ToString("N0")</span>
+            </div>
+            <div class="progress" style="height: 12px; background-color: #f1f5f9; border-radius: 6px;">
+              <div class="progress-bar" style="width: 100%; background-color: #10b981;"></div>
+            </div>
+          </div>
+
+          <!-- ผู้ถือบัตรสวัสดิการแห่งรัฐ ปัจจุบัน -->
+          <div>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-secondary fw-semibold">ผู้ถือบัตรสวัสดิการแห่งรัฐ ปัจจุบัน</span>
+              <span class="fw-bold text-dark">@Model.Welfare.Group1CardHolder.ToString("N0")</span>
+            </div>
+            <div class="progress" style="height: 12px; background-color: #f1f5f9; border-radius: 6px;">
+              @{ var p1 = Model.Summary.Population > 0 ? (double)Model.Welfare.Group1CardHolder / Model.Summary.Population * 100 : 0; }
+              <div class="progress-bar" style="width: @p1.ToString("F1")%; background-color: #86efac;"></div>
+            </div>
+          </div>
+
+          <!-- กลุ่มชายขอบ / กลุ่มตกหล่น -->
+          <div>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-secondary fw-semibold">กลุ่มชายขอบ / กลุ่มตกหล่น</span>
+              <span class="fw-bold text-dark">@Model.Welfare.Group2Missed.ToString("N0")</span>
+            </div>
+            <div class="progress" style="height: 12px; background-color: #f1f5f9; border-radius: 6px;">
+              @{ var p2 = Model.Summary.Population > 0 ? (double)Model.Welfare.Group2Missed / Model.Summary.Population * 100 : 0; }
+              <div class="progress-bar" style="width: @p2.ToString("F1")%; background-color: #fde047;"></div>
+            </div>
+          </div>
+
+          <!-- ไม่ใช่กลุ่มเป้าหมาย -->
+          <div>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-secondary fw-semibold">ไม่ใช่กลุ่มเป้าหมาย</span>
+              <span class="fw-bold text-dark">@Model.Welfare.Group3NotTarget.ToString("N0")</span>
+            </div>
+            <div class="progress" style="height: 12px; background-color: #f1f5f9; border-radius: 6px;">
+              @{ var p3 = Model.Summary.Population > 0 ? (double)Model.Welfare.Group3NotTarget / Model.Summary.Population * 100 : 0; }
+              <div class="progress-bar" style="width: @p3.ToString("F1")%; background-color: #cbd5e1;"></div>
+            </div>
+          </div>
+
+          <!-- รอการสำรวจ -->
+          <div>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-secondary fw-semibold">รอการสำรวจ</span>
+              <span class="fw-bold text-dark">@Model.Welfare.WaitingSurvey.ToString("N0")</span>
+            </div>
+            <div class="progress" style="height: 12px; background-color: #f1f5f9; border-radius: 6px;">
+              @{ var p4 = Model.Summary.Population > 0 ? (double)Model.Welfare.WaitingSurvey / Model.Summary.Population * 100 : 0; }
+              <div class="progress-bar" style="width: @p4.ToString("F1")%; background-color: #e2e8f0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- สัดส่วนเพศ -->
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center justify-content-around">
+          <!-- ยอดชาย -->
+          <div class="text-center">
+            <div class="fw-semibold text-primary" style="font-size: 0.85rem;">
+              <i class="bi bi-gender-male me-1"></i>ชาย
+            </div>
+            <div class="fs-4 fw-bold text-primary">@Model.Summary.Male.ToString("N0")</div>
+          </div>
+
+          <!-- Doughnut Chart ขนาดเล็ก -->
+          <div style="width: 110px; height: 110px;" class="position-relative">
+            <canvas id="genderChart"></canvas>
+          </div>
+
+          <!-- ยอดหญิง -->
+          <div class="text-center">
+            <div class="fw-semibold" style="font-size: 0.85rem; color: #ec4899;">
+              <i class="bi bi-gender-female me-1"></i>หญิง
+            </div>
+            <div class="fs-4 fw-bold" style="color: #ec4899;">@Model.Summary.Female.ToString("N0")</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<style>
+  .sakon-map-wrap { height: 520px; border-radius: 12px; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; padding: 8px; }
+  #sakon-svg { height: 100%; max-width: 100%; }
+  .amphur-shape { cursor: pointer; outline: none; }
+  .amphur-shape path { stroke: #ffffff; stroke-width: 1.5; stroke-linejoin: round; transition: filter .15s, stroke .15s; }
+  .amphur-shape:hover path, .amphur-shape:focus path { filter: brightness(0.93) saturate(1.15); stroke: #0f172a; stroke-width: 2; }
+  .amphur-shape text { fill: #1e293b; font-family: 'Sarabun', sans-serif; font-weight: 700; text-anchor: middle; pointer-events: none;
+    paint-order: stroke; stroke: #ffffff; stroke-width: 2.2px; stroke-linejoin: round; }
+  .map-tooltip { position: fixed; z-index: 2000; pointer-events: none; display: none; background: rgba(15, 23, 42, 0.95); color: #fff;
+    border-radius: 8px; padding: 8px 12px; font-family: 'Sarabun', sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+</style>
+<div id="map-tip" class="map-tooltip"></div>
+
+<script>
+// 1. ข้อมูลรายอำเภอจาก Model (จับคู่กับแผนที่ด้วยชื่ออำเภอ)
+const rawAmphurs = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Amphurs));
+const districtData = {};
+(rawAmphurs || []).forEach(x => {
+  const cleanName = (x.AmphurName || x.amphurName || "").replace("อ.", "").replace("อำเภอ", "").trim();
+  const id = x.AmphurId || x.amphurId;
+  districtData[cleanName] = {
+    pop: x.Population ?? x.population ?? 0,
+    house: x.Households ?? x.households ?? 0,
+    url: `@Url.Action("Tambon", "Home")?amphurId=${id}&year=@Model.Year`
+  };
+});
+function findDistrict(name) {
+  if (districtData[name]) return districtData[name];
+  const k = Object.keys(districtData).find(k => k && (k.includes(name) || name.includes(k)));
+  return k ? districtData[k] : null;
+}
+
+// 2. กราฟวงแหวนสัดส่วนเพศ
+new Chart(document.getElementById('genderChart'), {
+  type: 'doughnut',
+  data: { labels: ['ชาย', 'หญิง'], datasets: [{ data: [@Model.Summary.Male, @Model.Summary.Female], backgroundColor: ['#00bfff', '#ff00cc'], borderWidth: 0 }] },
+  options: { cutout: '72%', plugins: { legend: { display: false }, tooltip: { enabled: true } }, responsive: true, maintainAspectRatio: false }
+});
+
+// 3. แผนที่อำเภอ: hover = tooltip, คลิก/Enter = ไปหน้าข้อมูลอำเภอนั้น
+document.addEventListener("DOMContentLoaded", function () {
+  const tip = document.getElementById('map-tip');
+  document.querySelectorAll('#sakon-svg .amphur-shape').forEach(g => {
+    const name = g.dataset.name;
+    const info = findDistrict(name);
+    const go = () => { if (info) window.location.href = info.url; };
+    g.addEventListener('click', go);
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    g.addEventListener('mousemove', e => {
+      tip.innerHTML = `
+        <div class="fw-bold text-warning mb-1 fs-6"><i class="bi bi-geo-alt-fill me-1"></i>อ.${name}</div>
+        <div class="d-flex flex-column gap-1" style="font-size: 0.85rem;">
+          <div><b>ประชากร:</b> <span class="text-info">${info ? info.pop.toLocaleString() : '-'}</span> คน</div>
+          <div><b>ครัวเรือน:</b> <span class="text-success">${info ? info.house.toLocaleString() : '-'}</span> หลัง</div>
+          <div class="small opacity-75 mt-1">คลิกเพื่อดูรายละเอียด</div>
+        </div>`;
+      tip.style.display = 'block';
+      tip.style.left = (e.clientX + 14) + 'px';
+      tip.style.top = (e.clientY + 14) + 'px';
+    });
+    g.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  });
+});
+</script>
+}

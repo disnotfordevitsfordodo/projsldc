@@ -1,0 +1,54 @@
+@model PickerVm
+@{
+    var nowBe = DateTime.Now.Year + 543;
+}
+<div class="row g-3">
+  @if (Model.ShowYear)
+  {
+    <div class="col-md-2">
+      <label class="form-label small fw-semibold">ปีสำรวจ (พ.ศ.)</label>
+      <input type="number" name="Year" id="pk_year" value="@Model.Year" class="form-control" min="2500" max="@(nowBe + 1)" required />
+    </div>
+  }
+  <div class="col-md-3">
+    <label class="form-label small fw-semibold">อำเภอ</label>
+    <select name="AmphurId" id="pk_amphur" class="form-select" required>
+      <option value="">-- เลือกอำเภอ --</option>
+      @foreach (var a in Model.Amphurs) { <option value="@a.Id" selected="@(a.Id == Model.AmphurId)">อ.@a.Name</option> }
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label small fw-semibold">ตำบล</label>
+    <select name="TumbolId" id="pk_tumbol" class="form-select" required>
+      <option value="">-- เลือกตำบล --</option>
+      @foreach (var t in Model.Tumbols) { <option value="@t.Id" selected="@(t.Id == Model.TumbolId)">ต.@t.Name</option> }
+    </select>
+  </div>
+  <div class="col-md-4">
+    <label class="form-label small fw-semibold">หมู่บ้าน</label>
+    <select name="VillageId" id="pk_village" class="form-select" required>
+      <option value="">-- เลือกหมู่บ้าน --</option>
+      @foreach (var v in Model.Villages) { <option value="@v.Id" selected="@(v.Id == Model.VillageId)">@v.Name</option> }
+    </select>
+  </div>
+  @if (Model.ShowHouse)
+  {
+    <div class="col-md-6">
+      <label class="form-label small fw-semibold">บ้าน (รหัสบ้าน / บ้านเลขที่)</label>
+      <select name="HouseId" id="pk_house" class="form-select" required>
+        <option value="">-- เลือกบ้าน --</option>
+        @foreach (var h in Model.Houses) { <option value="@h.Id" selected="@(h.Id == Model.HouseId?.ToString())">@h.Name</option> }
+      </select>
+    </div>
+  }
+  @if (Model.ShowMember)
+  {
+    <div class="col-md-6">
+      <label class="form-label small fw-semibold">บุคคล</label>
+      <select name="MemberId" id="pk_member" class="form-select" required>
+        <option value="">-- เลือกบุคคล --</option>
+        @foreach (var m in Model.Members) { <option value="@m.Id" selected="@(m.Id == Model.MemberId?.ToString())">@m.Name</option> }
+      </select>
+    </div>
+  }
+</div>

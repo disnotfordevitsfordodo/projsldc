@@ -1,0 +1,14 @@
+@model int
+@{
+    var nowBe = DateTime.Now.Year + 543;
+    var years = Enumerable.Range(nowBe - 5, 6).Append(Model).Distinct().OrderByDescending(y => y).ToList();
+}
+<form method="get" class="d-inline-flex align-items-center gap-2 no-print">
+  @foreach (var k in Context.Request.Query.Keys.Where(k => !string.Equals(k, "year", StringComparison.OrdinalIgnoreCase) && !string.Equals(k, "page", StringComparison.OrdinalIgnoreCase)))
+  {
+    <input type="hidden" name="@k" value="@Context.Request.Query[k]" />
+  }
+  <select name="year" class="form-select form-select-sm fw-bold text-primary" style="width:7.5rem" onchange="this.form.submit()" aria-label="ปีสำรวจ">
+    @foreach (var y in years) { <option value="@y" selected="@(y == Model)">ปี @y</option> }
+  </select>
+</form>

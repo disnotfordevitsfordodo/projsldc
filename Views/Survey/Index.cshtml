@@ -1,0 +1,38 @@
+@model SurveyListVm
+@{
+    ViewData["Title"] = "แบบสำรวจอัปเดตข้อมูล";
+    var f = Model.Filter;
+    var pager = new PagerVm { Page = Model.Rows.Page, Pages = Model.Rows.Pages, Total = Model.Rows.Total,
+        Href = p => Url.Action("Index", new { year = f.Year, amphurId = f.AmphurId, tumbolId = f.TumbolId, q = f.Q, page = p }) };
+}
+<div class="page-head">
+  <div>
+    <h4 class="page-title"><i class="bi bi-ui-checks-grid"></i> แบบสำรวจอัปเดตข้อมูลครัวเรือน</h4>
+    <div class="page-sub">เก็บข้อมูลที่เปลี่ยนแปลงเร็ว (ที่อยู่อาศัย เศรษฐกิจ สุขภาพ สมาชิก) เพื่อให้ข้อมูลเป็นปัจจุบัน</div>
+  </div>
+  <div class="page-actions">
+    <partial name="_YearSelect" model="f.Year" />
+    <a class="btn btn-outline-secondary" asp-action="Print" target="_blank"><i class="bi bi-printer"></i> แบบพิมพ์เปล่า</a>
+    <a class="btn btn-outline-secondary" asp-action="ExportAnswers" asp-route-year="@f.Year" asp-route-amphurId="@f.AmphurId" asp-route-tumbolId="@f.TumbolId"><i class="bi bi-filetype-csv"></i> ส่งออกคำตอบ</a>
+    <a class="btn btn-success" asp-action="Form"><i class="bi bi-plus-lg"></i> เริ่มสำรวจบ้านใหม่</a>
+  </div>
+</div>
+<partial name="_Filter" model="f" />
+<div class="card overflow-hidden"><div class="table-responsive">
+  <table class="table table-hover mb-0">
+    <thead><tr><th>รหัสบ้าน</th><th>บ้านเลขที่</th><th>หมู่บ้าน / ตำบล / อำเภอ</th><th>ผู้สำรวจ</th><th>บันทึกเมื่อ</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var r in Model.Rows.Items)
+    {
+      <tr><td class="font-monospace fw-semibold">@r.HouseCode</td><td>@(r.HouseNo ?? "-")</td>
+        <td class="text-secondary">@r.VillageName / ต.@r.TumbolName / อ.@r.AmphurName</td>
+        <td>@(r.Surveyor ?? "-")</td><td>@r.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+        <td class="text-end text-nowrap">
+          <a class="btn btn-sm btn-primary" asp-action="Detail" asp-route-id="@r.AnswerId">ดูคำตอบ</a>
+          <a class="btn btn-sm btn-outline-primary" asp-action="Form" asp-route-houseId="@r.HouseId">แก้ไข</a></td></tr>
+    }
+    @if (Model.Rows.Items.Count == 0) { <tr><td colspan="6" class="text-center text-muted py-5"><i class="bi bi-clipboard2 fs-2 d-block mb-2"></i>ยังไม่มีคำตอบแบบสำรวจในปีนี้</td></tr> }
+    </tbody>
+  </table></div>
+  <partial name="_Pager" model="pager" />
+</div>

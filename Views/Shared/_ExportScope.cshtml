@@ -1,0 +1,19 @@
+@model ExportVm
+@{ var p = Model.Picker; }
+<div class="scope-box">
+  <div class="row g-3">
+    <div class="col-md-2"><label class="form-label small fw-semibold">ปีสำรวจ</label>
+      <select name="year" class="form-select">@foreach (var y in Model.Years) { <option value="@y" selected="@(y == Model.Year)">@y</option> }</select></div>
+    <div class="col-md-5"><label class="form-label small fw-semibold">อำเภอ</label>
+      <select name="amphurId" class="form-select sc-amphur"><option value="">-- ทุกอำเภอ --</option>
+        @foreach (var a in p.Amphurs) { <option value="@a.Id" selected="@(a.Id == p.AmphurId)">อ.@a.Name</option> }</select></div>
+    <div class="col-md-5"><label class="form-label small fw-semibold">ตำบล</label>
+      <select name="tumbolId" class="form-select sc-tumbol"><option value="">-- ทุกตำบล --</option>
+        @foreach (var t in p.Tumbols) { <option value="@t.Id" selected="@(t.Id == p.TumbolId)">ต.@t.Name</option> }</select></div>
+    <div class="col-12"><label class="form-label small fw-semibold">หน่วยงาน / วัตถุประสงค์การใช้ข้อมูล <span class="text-danger">*</span></label>
+      <input name="purpose" class="form-control" maxlength="300" minlength="5" required placeholder="เช่น มหาวิทยาลัย… วิจัยเรื่อง… / สำนักงาน… จัดทำระบบ…" /></div>
+    <div class="col-12"><label class="form-check">
+      <input type="checkbox" class="form-check-input" name="consent" value="true" required />
+      <span class="form-check-label small">ข้าพเจ้ารับทราบว่าข้อมูลมีข้อมูลอ่อนไหว (สุขภาพ ความพิการ รายได้) จะใช้ตามวัตถุประสงค์ที่ระบุ ไม่นำไประบุตัวบุคคล และการดาวน์โหลดถูกบันทึกในประวัติการใช้งาน</span></label></div>
+  </div>
+</div>

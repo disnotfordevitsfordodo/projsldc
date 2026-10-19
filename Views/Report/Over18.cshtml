@@ -1,0 +1,97 @@
+@model Over18Vm
+@{
+    ViewData["Title"] = "ประชากร ≥ 18 ปี ไม่มีบัตรสวัสดิการ";
+    var f = Model.Filter;
+    var pager = new PagerVm { Page = Model.Members.Page, Pages = Model.Members.Pages, Total = Model.Members.Total,
+        Href = p => Url.Action("Over18", new { year = f.Year, amphurId = f.AmphurId, tumbolId = f.TumbolId, q = f.Q, page = p }) };
+}
+
+<!-- ส่วนหัวเรื่อง (Header) + ปุ่ม Action -->
+<div class="page-head">
+  <div>
+    <h4 class="page-title">
+      <i class="bi bi-person-exclamation"></i> ประชากร ≥ 18 ปี (ไม่มีบัตรสวัสดิการฯ)
+    </h4>
+    <div class="page-sub">
+      แสดงรายชื่อประชากรอายุตั้งแต่ 18 ปีขึ้นไปและไม่มีบัตรสวัสดิการแห่งรัฐ ปี พ.ศ. @f.Year
+    </div>
+  </div>
+  <div class="page-actions no-print">
+    <a class="btn btn-success btn-sm rounded-3 px-3 fw-semibold d-inline-flex align-items-center gap-1 shadow-sm" href="@Url.Action("Over18Export", new { year = f.Year, amphurId = f.AmphurId, tumbolId = f.TumbolId, q = f.Q })">
+      <i class="bi bi-file-earmark-excel"></i> ส่งออก Excel (CSV)
+    </a>
+    <button class="btn btn-outline-secondary btn-sm rounded-3 px-3 fw-semibold d-inline-flex align-items-center gap-1 shadow-sm" onclick="window.print()">
+      <i class="bi bi-printer"></i> พิมพ์รายชื่อ
+    </button>
+  </div>
+</div>
+
+<!-- Partial ตัวกรองค้นหา -->
+<div class="mb-4">
+  <partial name="_Filter" model="f" />
+</div>
+
+<!-- ตารางแสดงรายชื่อประชากร -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+  <div class="card-header py-3 px-4 d-flex align-items-center justify-content-between border-0">
+    <div class="fw-bold fs-6 d-flex align-items-center gap-2">
+      <i class="bi bi-person-lines-fill"></i> รายชื่อประชากรเข้าข่ายไม่มีบัตรสวัสดิการฯ
+    </div>
+    <div class="small opacity-75">
+      ทั้งหมด @Model.Members.Total.ToString("N0") รายการ
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+      <thead class="table-light text-secondary border-bottom">
+        <tr>
+          <th class="py-3 px-3 text-center" style="width: 50px;">#</th>
+          <th class="py-3 px-3">ชื่อ-นามสกุล</th>
+          <th class="py-3 px-3" style="width: 170px;">เลขประจำตัว</th>
+          <th class="py-3 px-3 text-center" style="width: 70px;">อายุ</th>
+          <th class="py-3 px-3 text-center" style="width: 70px;">เพศ</th>
+          <th class="py-3 px-3 text-center" style="width: 100px;">บ้านเลขที่</th>
+          <th class="py-3 px-3">หมู่บ้าน/ตำบล/อำเภอ</th>
+          <th class="py-3 px-3 text-center" style="width: 160px;">สถานะ</th>
+          <th class="py-3 px-4 text-center no-print" style="width: 80px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @{ var n = (Model.Members.Page - 1) * 25; }
+        @foreach (var m in Model.Members.Items)
+        {
+          <tr>
+            <td class="text-center text-muted">@(++n)</td>
+            <td class="fw-semibold text-dark">@m.FullName</td>
+            <td class="text-muted font-monospace">@m.CitizenIdMasked</td>
+            <td class="text-center fw-semibold text-dark">@m.Age</td>
+            <td class="text-center text-secondary">@Lbl.Gender(m.GenderId)</td>
+            <td class="text-center fw-semibold text-dark">@m.HouseNo</td>
+            <td class="text-secondary">@m.VillageName / ต.@m.TumbolName / อ.@m.AmphurName</td>
+            <td class="text-center">
+              <span class="badge @Lbl.Css(m.WelfareStatusId) rounded-pill px-3 py-1 fw-normal" style="font-size: 0.75rem;">
+                @Lbl.Welfare(m.WelfareStatusId)
+              </span>
+            </td>
+            <td class="text-center px-4 no-print">
+              <a class="btn btn-sm btn-primary rounded-3 px-3 py-1 fw-semibold" style="font-size: 0.8rem;" href="@Url.Action("Person", "House", new { id = m.MemberId })">
+                ดู
+              </a>
+            </td>
+          </tr>
+        }
+        @if (Model.Members.Items.Count == 0)
+        {
+          <tr>
+            <td colspan="9" class="text-center text-muted py-5">@(Model.Filter.AmphurId == null && Model.Filter.TumbolId == null ? "กรุณาเลือกอำเภอหรือตำบลก่อน เพื่อแสดงรายชื่อ" : "ไม่พบข้อมูล")</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card-footer bg-white py-3 px-4 border-top">
+    <partial name="_Pager" model="pager" />
+  </div>
+</div>

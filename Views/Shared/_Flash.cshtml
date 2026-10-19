@@ -1,0 +1,18 @@
+@if (TempData["Ok"] != null)
+{
+  <div class="alert alert-success d-flex align-items-center gap-2 no-print">
+    <i class="bi bi-check-circle-fill fs-5"></i><div>@TempData["Ok"]</div>
+  </div>
+}
+@if (TempData["Err"] != null)
+{
+  <div class="alert alert-danger d-flex align-items-center gap-2 no-print">
+    <i class="bi bi-exclamation-triangle-fill fs-5"></i><div>@TempData["Err"]</div>
+  </div>
+}
+@if (TempData["Msg"] != null)
+{
+  <div class="alert alert-warning d-flex align-items-center gap-2 no-print">
+    <i class="bi bi-info-circle-fill fs-5"></i><div>@TempData["Msg"]</div>
+  </div>
+}

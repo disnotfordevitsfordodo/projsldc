@@ -1,0 +1,44 @@
+@model QView
+@{
+    var q = Model.Q; var n = Model.Name; var v = Model.Value;
+    var first = v.Length > 0 ? v[0] : "";
+}
+@if (Model.Compact)
+{
+  @if (q.Opts != null)
+  {
+    <select name="@n" class="form-select form-select-sm"><option value="">-</option>
+      @foreach (var o in q.Opts) { <option value="@o" selected="@(first == o)">@o</option> }</select>
+  }
+  else
+  {
+    <input name="@n" value="@first" type="@(q.Type == "number" ? "number" : "text")" min="0" step="any" class="form-control form-control-sm" />
+  }
+}
+else
+{
+  <div class="q-block">
+    <div class="q-label">@q.Label</div>
+    @switch (q.Type)
+    {
+      case "radio":
+        <div class="q-opts">@foreach (var o in q.Opts!) { <label class="form-check"><input class="form-check-input" type="radio" name="@n" value="@o" checked="@(first == o)" /> <span class="form-check-label">@o</span></label> }</div>
+        break;
+      case "check":
+        <div class="q-opts">@foreach (var o in q.Opts!) { <label class="form-check"><input class="form-check-input" type="checkbox" name="@n" value="@o" checked="@v.Contains(o)" /> <span class="form-check-label">@o</span></label> }</div>
+        break;
+      case "textarea":
+        <textarea name="@n" rows="2" maxlength="1000" class="form-control">@first</textarea>
+        break;
+      case "number":
+        <input name="@n" value="@first" type="number" min="0" step="any" class="form-control" style="max-width:240px" />
+        break;
+      case "date":
+        <input name="@n" value="@first" type="date" class="form-control" style="max-width:240px" />
+        break;
+      default:
+        <input name="@n" id="@n" value="@first" maxlength="300" class="form-control" placeholder="@q.Hint" />
+        break;
+    }
+  </div>
+}

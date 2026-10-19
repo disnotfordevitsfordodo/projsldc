@@ -1,0 +1,28 @@
+@model IEnumerable<SLDC.Web.Data.Dataset>
+@{ ViewData["Title"] = "ข้อมูลเปิดสำหรับประชาชน"; var year = (int)ViewBag.Year; }
+<div class="page-head">
+  <div>
+    <h4 class="page-title"><i class="bi bi-globe2"></i> ข้อมูลเปิดสำหรับประชาชน</h4>
+    <div class="page-sub">สถิติสรุปจังหวัดสกลนคร ปี พ.ศ. @year · ไม่ระบุตัวบุคคล · ดาวน์โหลดได้ฟรีโดยไม่ต้องล็อกอิน</div>
+  </div>
+  <div class="page-actions">
+    <partial name="_YearSelect" model="year" />
+    <a class="btn btn-outline-secondary" asp-action="Dictionary"><i class="bi bi-book"></i> พจนานุกรมข้อมูล</a>
+  </div>
+</div>
+<div class="row g-3">
+  @foreach (var d in Model)
+  {
+    <div class="col-md-6 col-xl-4"><div class="card h-100"><div class="card-body d-flex flex-column">
+      <span class="aud-icon bg-primary-subtle text-primary mb-2"><i class="bi @d.Icon"></i></span>
+      <div class="fw-bold text-dark">@d.Title</div>
+      <div class="small text-muted flex-grow-1 mb-3">@d.Desc</div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-sm btn-primary" asp-action="Get" asp-route-key="@d.Key" asp-route-year="@year" asp-route-format="csv"><i class="bi bi-filetype-csv"></i> CSV</a>
+        <a class="btn btn-sm btn-outline-primary" asp-action="Get" asp-route-key="@d.Key" asp-route-year="@year" asp-route-format="json"><i class="bi bi-braces"></i> JSON</a>
+      </div>
+    </div></div></div>
+  }
+</div>
+<div class="alert alert-light border mt-4 small"><i class="bi bi-shield-check me-1 text-success"></i>
+  ตัวเลขระดับหมู่บ้านที่น้อยกว่า 5 แสดงเป็น "&lt;5" เพื่อคุ้มครองข้อมูลส่วนบุคคล · เมื่อนำข้อมูลไปเผยแพร่ กรุณาอ้างอิงแหล่งที่มา SLDC สกลนคร</div>

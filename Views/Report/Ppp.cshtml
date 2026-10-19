@@ -1,0 +1,183 @@
+@model PppVm
+@{
+    ViewData["Title"] = "รายงานกลุ่ม PPPConnext";
+    var s = Model.Sum;
+    string Pct(long x) => s.Total == 0 ? "0%" : (x * 100.0 / s.Total).ToString("0.0") + "%";
+}
+
+<!-- ส่วนหัวเรื่อง (Header) -->
+<div class="page-head">
+  <div>
+    <h4 class="page-title">
+      <i class="bi bi-diagram-3-fill"></i> รายงานการแยกกลุ่ม PPPConnext (ปี พ.ศ. @Model.Year)
+    </h4>
+    <div class="page-sub">
+      วิเคราะห์และจัดแบ่งตามคะแนนเฉลี่ย 5 ด้าน (รายได้ สุขภาพ ภาวะพึ่งพิง เงินออม สิทธิสวัสดิการ) — เกณฑ์: &lt;45 = กลุ่ม 1, 45-59 = กลุ่ม 2, 60-69 = กลุ่ม 3, ≥70 = กลุ่ม 4
+    </div>
+  </div>
+  <div class="page-actions">
+    <partial name="_YearSelect" model="Model.Year" />
+  </div>
+</div>
+
+<!-- การ์ดสรุปตัวเลข 4 กลุ่ม สไตล์ซอฟต์ -->
+<div class="row g-3 mb-4">
+  <!-- กลุ่มที่ 1: อยู่ลำบาก -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #fef2f2; border-left: 5px solid #dc2626 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-danger fw-bold small"><i class="bi bi-exclamation-octagon-fill me-1"></i>กลุ่มที่ 1: อยู่ลำบาก</div>
+          <div class="fs-2 fw-bold text-danger my-1">@s.G1.ToString("N0")</div>
+          <div class="small text-muted fw-semibold">สัดส่วน @Pct(s.G1)</div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(220, 38, 38, 0.1); width: 54px; height: 54px;">
+          <i class="bi bi-emoji-frown-fill fs-3 text-danger"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- กลุ่มที่ 2: อยู่ยาก -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #fefce8; border-left: 5px solid #eab308 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-warning fw-bold small"><i class="bi bi-exclamation-triangle-fill me-1"></i>กลุ่มที่ 2: อยู่ยาก</div>
+          <div class="fs-2 fw-bold text-warning my-1">@s.G2.ToString("N0")</div>
+          <div class="small text-muted fw-semibold">สัดส่วน @Pct(s.G2)</div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(234, 179, 8, 0.15); width: 54px; height: 54px;">
+          <i class="bi bi-emoji-expressionless-fill fs-3 text-warning"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- กลุ่มที่ 3: อยู่ได้ (ปรับจาก อยู่พอได้) -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #f0f9ff; border-left: 5px solid #0284c7 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-primary fw-bold small"><i class="bi bi-info-circle-fill me-1"></i>กลุ่มที่ 3: อยู่ได้</div>
+          <div class="fs-2 fw-bold text-primary my-1">@s.G3.ToString("N0")</div>
+          <div class="small text-muted fw-semibold">สัดส่วน @Pct(s.G3)</div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(2, 132, 199, 0.1); width: 54px; height: 54px;">
+          <i class="bi bi-emoji-neutral-fill fs-3 text-primary"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- กลุ่มที่ 4: อยู่ดี -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #f0fdf4; border-left: 5px solid #16a34a !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="text-success fw-bold small"><i class="bi bi-check-circle-fill me-1"></i>กลุ่มที่ 4: อยู่ดี</div>
+          <div class="fs-2 fw-bold text-success my-1">@s.G4.ToString("N0")</div>
+          <div class="small text-muted fw-semibold">สัดส่วน @Pct(s.G4)</div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(22, 163, 74, 0.1); width: 54px; height: 54px;">
+          <i class="bi bi-emoji-smile-fill fs-3 text-success"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- ฝั่งซ้าย: กราฟสัดส่วนประชากรตามกลุ่ม -->
+  <div class="col-lg-5 col-xl-4">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+      <div class="card-header py-3 px-4 fw-bold border-bottom d-flex align-items-center gap-2">
+        <i class="bi bi-pie-chart-fill text-primary"></i> สัดส่วนประชากรตามกลุ่ม
+      </div>
+      <div class="card-body p-4 d-flex align-items-center justify-content-center">
+        <div style="width: 100%; max-width: 320px;">
+          <canvas id="pppChart" height="260"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ฝั่งขวา: ตารางจำแนกตามหมู่บ้าน -->
+  <div class="col-lg-7 col-xl-8">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+      <div class="card-header py-3 px-4 d-flex align-items-center justify-content-between border-0">
+        <div class="fw-bold fs-6 d-flex align-items-center gap-2">
+          <i class="bi bi-houses-fill"></i> จำแนกตามหมู่บ้าน <span class="fw-normal opacity-75 fs-7">(เรียงตามกลุ่มที่ 1 มากสุด 100 อันดับ)</span>
+        </div>
+      </div>
+      <div class="table-responsive" style="max-height: 440px;">
+        <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+          <thead class="table-light text-secondary border-bottom sticky-top">
+            <tr>
+              <th class="py-3 px-4">หมู่บ้าน</th>
+              <th class="py-3 px-3">ตำบล</th>
+              <th class="py-3 px-3 text-end text-danger fw-bold" style="width: 90px;">กลุ่ม 1</th>
+              <th class="py-3 px-3 text-end text-warning fw-bold" style="width: 90px;">กลุ่ม 2</th>
+              <th class="py-3 px-3 text-end text-primary fw-bold" style="width: 90px;">กลุ่ม 3</th>
+              <th class="py-3 px-3 text-end text-success fw-bold" style="width: 90px;">กลุ่ม 4</th>
+              <th class="py-3 px-4 text-end fw-bold text-dark" style="width: 100px;">รวม</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var r in Model.Rows)
+            {
+              <tr>
+                <td class="px-4 fw-semibold text-dark">@r.VillageName</td>
+                <td class="text-secondary">ต.@r.TumbolName</td>
+                <td class="text-end fw-bold text-danger">@r.G1.ToString("N0")</td>
+                <td class="text-end fw-bold text-warning">@r.G2.ToString("N0")</td>
+                <td class="text-end fw-bold text-primary">@r.G3.ToString("N0")</td>
+                <td class="text-end fw-bold text-success">@r.G4.ToString("N0")</td>
+                <td class="text-end fw-bold text-dark px-4">@r.Total.ToString("N0")</td>
+              </tr>
+            }
+            @if (Model.Rows.Count == 0)
+            {
+              <tr>
+                <td colspan="7" class="text-center text-muted py-5">ยังไม่มีผลประเมิน</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+new Chart(document.getElementById('pppChart'), {
+  type: 'doughnut',
+  data: { 
+    labels: ['กลุ่ม 1 อยู่ลำบาก', 'กลุ่ม 2 อยู่ยาก', 'กลุ่ม 3 อยู่ได้', 'กลุ่ม 4 อยู่ดี'],
+    datasets: [{ 
+      data: [@s.G1, @s.G2, @s.G3, @s.G4], 
+      backgroundColor: ['#dc2626', '#eab308', '#0284c7', '#16a34a'],
+      borderWidth: 2,
+      borderColor: '#ffffff'
+    }] 
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          font: { family: 'Sarabun', size: 12 },
+          padding: 12,
+          usePointStyle: true,
+          pointStyle: 'circle'
+        }
+      }
+    },
+    cutout: '65%'
+  }
+});
+</script>
+}

@@ -1,0 +1,130 @@
+@model ExportVm
+@using SLDC.Web.Data
+@{
+    ViewData["Title"] = "ส่งออกข้อมูล";
+    var p = Model.Picker;
+    var origin = $"{Context.Request.Scheme}://{Context.Request.Host}";
+}
+<div class="page-head">
+  <div>
+    <h4 class="page-title"><i class="bi bi-box-arrow-down"></i> ส่งออกข้อมูล</h4>
+    <div class="page-sub">เลือกประเภทผู้ใช้ข้อมูล ระบบจะให้รูปแบบและระดับความละเอียดที่เหมาะสม@(Model.ScopeNote != null ? " · " + Model.ScopeNote : "")</div>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-outline-secondary" asp-action="Dictionary"><i class="bi bi-book"></i> พจนานุกรมข้อมูล</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4" id="aud">
+  <div class="col-6 col-xl-3"><div class="card aud-card active" data-tab="t-field"><div class="card-body">
+    <span class="aud-icon bg-success-subtle text-success"><i class="bi bi-compass"></i></span>
+    <div class="fw-bold text-dark mt-2">เจ้าหน้าที่ภาคสนาม</div><div class="small text-muted">ใบรายชื่อลงพื้นที่ แบบสำรวจ</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card aud-card" data-tab="t-research"><div class="card-body">
+    <span class="aud-icon bg-primary-subtle text-primary"><i class="bi bi-graph-up-arrow"></i></span>
+    <div class="fw-bold text-dark mt-2">นักวิจัย / นักวิเคราะห์</div><div class="small text-muted">ชุดข้อมูลไม่ระบุตัวตน CSV · JSON</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card aud-card" data-tab="t-system"><div class="card-body">
+    <span class="aud-icon bg-warning-subtle text-warning"><i class="bi bi-diagram-3"></i></span>
+    <div class="fw-bold text-dark mt-2">หน่วยงานอื่น / นักออกแบบระบบ</div><div class="small text-muted">แพ็กเกจ ZIP · พจนานุกรม · JSON API</div></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card aud-card" data-tab="t-public"><div class="card-body">
+    <span class="aud-icon bg-info-subtle text-info"><i class="bi bi-globe2"></i></span>
+    <div class="fw-bold text-dark mt-2">ประชาชนทั่วไป</div><div class="small text-muted">สถิติสรุป เปิดให้ทุกคน</div></div></div></div>
+</div>
+
+@* ---------- 1) ภาคสนาม ---------- *@
+<div class="tab-box" id="t-field">
+  <div class="card"><div class="card-header"><i class="bi bi-compass me-1"></i> ใบรายชื่อสำหรับลงพื้นที่สำรวจ</div>
+    <div class="card-body">
+      <p class="text-muted">เลือกหมู่บ้าน ระบบจะสร้างรายชื่อบ้านและสมาชิกเดิม พร้อมช่องให้ติ๊ก/จดสิ่งที่พบจริง (มีชื่อจริง — ใช้เฉพาะในพื้นที่ที่คุณรับผิดชอบ เลขบัตรปิดบางส่วน)</p>
+      <form method="get" asp-action="Field">
+        <partial name="_Picker" model="p" />
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <button class="btn btn-primary" name="format" value="print"><i class="bi bi-printer"></i> ใบรายชื่อ (พิมพ์)</button>
+          <button class="btn btn-outline-primary" name="format" value="csv"><i class="bi bi-filetype-csv"></i> ไฟล์ CSV (เปิดใน Excel)</button>
+        </div>
+      </form>
+      <hr />
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-success" asp-controller="Survey" asp-action="Form"><i class="bi bi-ui-checks-grid"></i> กรอกแบบสำรวจบนเว็บ/มือถือ</a>
+        <a class="btn btn-outline-secondary" asp-controller="Survey" asp-action="Print" target="_blank"><i class="bi bi-printer"></i> แบบสำรวจกระดาษเปล่า</a>
+      </div>
+    </div></div>
+</div>
+
+@* ---------- 2) นักวิจัย / นักวิเคราะห์ ---------- *@
+<div class="tab-box d-none" id="t-research">
+  <form method="get" asp-action="Download" id="f-research">
+    <div class="card mb-3"><div class="card-header"><i class="bi bi-1-circle me-1"></i> เลือกชุดข้อมูล</div>
+      <div class="card-body"><div class="row g-2">
+        @foreach (var d in ExportCatalog.Private)
+        {
+          <div class="col-lg-6"><label class="ds-row">
+            <input type="radio" class="form-check-input mt-1" name="key" value="@d.Key" checked="@(d.Key == "members")" />
+            <span><i class="bi @d.Icon text-primary me-1"></i><b class="text-dark">@d.Title</b>
+              <span class="d-block small text-muted">@d.Desc</span></span></label></div>
+        }
+      </div></div></div>
+    <div class="card mb-3"><div class="card-header"><i class="bi bi-2-circle me-1"></i> ขอบเขต รูปแบบ และเงื่อนไข</div>
+      <div class="card-body"><partial name="_ExportScope" model="Model" />
+        <div class="row g-3 mt-1">
+          <div class="col-md-3"><label class="form-label small fw-semibold">รูปแบบไฟล์</label>
+            <select name="format" class="form-select"><option value="csv">CSV (Excel / R / Python)</option><option value="json">JSON (ระบบ / API)</option></select></div>
+        </div>
+        <button class="btn btn-primary mt-3 px-4"><i class="bi bi-download"></i> ดาวน์โหลด</button>
+      </div></div>
+  </form>
+</div>
+
+@* ---------- 3) หน่วยงานอื่น / นักออกแบบระบบ ---------- *@
+<div class="tab-box d-none" id="t-system">
+  <div class="row g-3">
+    <div class="col-lg-6"><form method="get" asp-action="Download"><input type="hidden" name="key" value="package" />
+      <div class="card h-100"><div class="card-header"><i class="bi bi-file-earmark-zip me-1"></i> แพ็กเกจข้อมูลครบชุด (ZIP)</div><div class="card-body">
+        <p class="text-muted small">รวมทุกชุดข้อมูลเป็น CSV + พจนานุกรมข้อมูล + README ใช้รหัส <code>house_key</code> / <code>member_key</code> เชื่อมระหว่างไฟล์ได้ — แนะนำให้เลือกอำเภอหรือตำบลเพื่อลดขนาดไฟล์</p>
+        <partial name="_ExportScope" model="Model" />
+        <button class="btn btn-primary mt-3 px-4"><i class="bi bi-download"></i> ดาวน์โหลด ZIP</button>
+      </div></div></form></div>
+    <div class="col-lg-6"><div class="card h-100"><div class="card-header"><i class="bi bi-braces me-1"></i> เชื่อมระบบด้วย JSON (HTTP GET)</div><div class="card-body">
+      <p class="text-muted small">ใช้ endpoint เดียวกับการดาวน์โหลด (ต้องล็อกอินด้วยคุกกี้ของระบบ) แบ่งหน้าด้วย <code>limit</code> / <code>offset</code></p>
+      <pre class="bg-light rounded-3 p-3 small" style="white-space:pre-wrap">@origin/Export/Download?key=members&amp;format=json
+  &amp;year=@Model.Year&amp;amphurId=&lt;รหัสอำเภอ&gt;
+  &amp;purpose=&lt;หน่วยงาน/วัตถุประสงค์&gt;&amp;consent=true
+  &amp;limit=50000&amp;offset=0</pre>
+      <div class="small text-muted mb-2">key ที่ใช้ได้: @string.Join(", ", ExportCatalog.Private.Select(d => d.Key))</div>
+      <div class="alert alert-warning small mb-0"><i class="bi bi-info-circle me-1"></i>หน่วยงานภายนอกที่ต้องการข้อมูลระบุตัวตน ควรทำข้อตกลงแบ่งปันข้อมูล (MOU/DSA) ก่อน — ระบบนี้ไม่ส่งออกชื่อ เลขบัตร หรือที่อยู่ในชุดข้อมูลเหล่านี้</div>
+    </div></div></div>
+  </div>
+</div>
+
+@* ---------- 4) ประชาชนทั่วไป ---------- *@
+<div class="tab-box d-none" id="t-public">
+  <div class="card"><div class="card-body text-center py-5">
+    <div class="aud-icon bg-info-subtle text-info mb-3" style="width:64px;height:64px;font-size:1.8rem"><i class="bi bi-globe2"></i></div>
+    <h5 class="text-dark">ข้อมูลเปิดสำหรับประชาชน</h5>
+    <p class="text-muted mx-auto" style="max-width:520px">สถิติสรุปรายอำเภอ ตำบล หมู่บ้าน (ไม่ระบุตัวบุคคล ค่าน้อยกว่า 5 ถูกซ่อน) ดาวน์โหลดได้โดยไม่ต้องล็อกอิน</p>
+    <a class="btn btn-primary px-4" asp-controller="OpenData" asp-action="Index" asp-route-year="@Model.Year">ไปที่หน้าข้อมูลเปิด</a>
+  </div></div>
+</div>
+
+@section Scripts {
+<script>
+  // สลับแท็บตามกลุ่มผู้ใช้
+  document.querySelectorAll('.aud-card').forEach(card => card.addEventListener('click', () => {
+    document.querySelectorAll('.aud-card').forEach(c => c.classList.toggle('active', c === card));
+    document.querySelectorAll('.tab-box').forEach(b => b.classList.toggle('d-none', b.id !== card.dataset.tab));
+    history.replaceState(null, '', '#' + card.dataset.tab);
+  }));
+  if (location.hash) { const c = document.querySelector('.aud-card[data-tab="' + location.hash.slice(1) + '"]'); if (c) c.click(); }
+
+  // ตัวเลือกตำบลตามอำเภอ (ฟอร์มขอบเขตข้อมูล)
+  document.querySelectorAll('.sc-amphur').forEach(sel => sel.addEventListener('change', async () => {
+    const t = sel.closest('.scope-box').querySelector('.sc-tumbol');
+    t.innerHTML = '<option value="">-- ทุกตำบล --</option>';
+    if (!sel.value) return;
+    try {
+      const r = await fetch('/Lookup/TumbolList?amphurId=' + encodeURIComponent(sel.value));
+      (await r.json()).forEach(o => t.add(new Option(o.name, o.id)));
+    } catch { }
+  }));
+</script>
+<partial name="_PickerScript" />
+}

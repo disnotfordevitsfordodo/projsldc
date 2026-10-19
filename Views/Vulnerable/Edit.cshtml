@@ -1,0 +1,10 @@
+@model VulFormVm
+@{ var f = Model.Form; ViewData["Title"] = "แก้ไขข้อมูลกลุ่มเปราะบาง"; var tn = Model.Types.FirstOrDefault(x => x.Id == f.VulnerableTypeId?.ToString())?.Name; }
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4></div></div><div class="text-muted small mb-3">@Model.MemberName — @tn</div>
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<div class="card border-0 shadow-sm rounded-4" style="max-width:640px"><div class="card-body p-4">
+<form asp-action="Edit" method="post"><input type="hidden" name="MemberId" value="@f.MemberId" /><input type="hidden" name="VulnerableTypeId" value="@f.VulnerableTypeId" /><div class="row g-3">
+  <div class="col-12"><label class="form-label small fw-semibold">วันที่ระบุ</label><input type="date" name="IdentifiedDate" value="@(f.IdentifiedDate?.ToString("yyyy-MM-dd"))" class="form-control" /></div>
+  <div class="col-12"><label class="form-label small fw-semibold">หมายเหตุ</label><input name="Note" value="@f.Note" maxlength="255" class="form-control" /></div>
+  <div class="col-12"><button class="btn btn-success rounded-3 px-4">บันทึก</button> <a class="btn btn-outline-secondary rounded-3 px-4" href="javascript:history.back()">ยกเลิก</a></div>
+</div></form></div></div>

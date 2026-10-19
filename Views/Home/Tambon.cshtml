@@ -1,0 +1,38 @@
+@model List<PopRow>
+@{ ViewData["Title"] = "ข้อมูลระดับตำบล"; var year = (int)ViewBag.Year; }
+<div class="page-head">
+  <div>
+    <h4 class="page-title"><i class="bi bi-geo-alt"></i> อ.@ViewBag.AmphurName</h4>
+    <div class="page-sub">ข้อมูลจำแนกรายตำบล ปี พ.ศ. @year</div>
+  </div>
+  <div class="page-actions">
+    <partial name="_YearSelect" model="year" />
+    <a href="@Url.Action("Index", "Home", new { year })" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> กลับภาพรวม</a>
+  </div>
+</div>
+<div class="row g-3 mb-4">
+  @{
+    (string Label, long Val, string Bg, string Bd)[] cards = {
+      ("ประชากรทั้งหมด", Model.Sum(x => x.Population), "#f0f9ff", "#0284c7"),
+      ("ครัวเรือนทั้งหมด", Model.Sum(x => x.Households), "#f0fdf4", "#16a34a"),
+      ("ชาย", Model.Sum(x => x.Male), "#eff6ff", "#2563eb"),
+      ("หญิง", Model.Sum(x => x.Female), "#fdf2f8", "#db2777") };
+  }
+  @foreach (var c in cards)
+  {
+    <div class="col-6 col-md-3"><div class="card h-100 p-3" style="background-color:@c.Bg; border-left:5px solid @c.Bd !important;">
+      <div class="small fw-semibold text-secondary">@c.Label</div><div class="fs-3 fw-bold text-dark">@c.Val.ToString("N0")</div></div></div>
+  }
+</div>
+<div class="card overflow-hidden"><div class="table-responsive"><table class="table table-hover mb-0">
+  <thead><tr><th>ตำบล</th><th class="text-end">ประชากร</th><th class="text-end">ชาย</th><th class="text-end">หญิง</th><th class="text-end">ครัวเรือน</th><th></th></tr></thead>
+  <tbody>
+  @foreach (var r in Model)
+  {
+    <tr><td class="fw-semibold text-dark">ต.@r.TumbolName</td>
+        <td class="text-end">@r.Population.ToString("N0")</td><td class="text-end">@r.Male.ToString("N0")</td>
+        <td class="text-end">@r.Female.ToString("N0")</td><td class="text-end">@r.Households.ToString("N0")</td>
+        <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="@Url.Action("Village", "Home", new { tumbolId = r.TumbolId, year })">ดูหมู่บ้าน <i class="bi bi-chevron-right"></i></a></td></tr>
+  }
+  </tbody>
+</table></div></div>

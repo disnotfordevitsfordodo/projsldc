@@ -1,0 +1,297 @@
+@model PopulationFormVm
+@{
+    ViewData["Title"] = "เพิ่มข้อมูลประชากร";
+    var f = Model.Form;
+    var nowBe = DateTime.Now.Year + 543;
+    string[] months = { "", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม" };
+}
+
+<div class="page-head">
+  <div>
+    <h4 class="page-title">
+      <i class="bi bi-person-plus"></i> เพิ่มข้อมูลประชากร
+    </h4>
+    <div class="page-sub">บันทึกสมาชิกใหม่เข้าครัวเรือน หรือสร้างครัวเรือนใหม่พร้อมสมาชิกคนแรก</div>
+  </div>
+  <a class="btn btn-outline-secondary rounded-3" asp-controller="Report" asp-action="Population">
+    <i class="bi bi-arrow-left"></i> ย้อนกลับ
+  </a>
+</div>
+
+@if (Model.Error != null)
+{
+  <div class="alert alert-danger border-0 shadow-sm rounded-4 d-flex align-items-center gap-2 mb-4">
+    <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+    <div>@Model.Error</div>
+  </div>
+}
+
+<form asp-action="Create" method="post" autocomplete="off">
+
+  <!-- 1. ที่อยู่และครัวเรือน -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header py-3 px-4 border-0 fw-bold">
+      <i class="bi bi-geo-alt me-1"></i> พื้นที่และครัวเรือน
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-2">
+          <label class="form-label small fw-semibold">ปีสำรวจ (พ.ศ.)</label>
+          <input type="number" name="Year" id="year" value="@f.Year" class="form-control" min="2500" max="@(nowBe + 1)" required />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold">อำเภอ</label>
+          <select name="AmphurId" id="amphur" class="form-select" required>
+            <option value="">-- เลือกอำเภอ --</option>
+            @foreach (var a in Model.Amphurs) { <option value="@a.Id" selected="@(a.Id == f.AmphurId)">อ.@a.Name</option> }
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold">ตำบล</label>
+          <select name="TumbolId" id="tumbol" class="form-select" required>
+            <option value="">-- เลือกตำบล --</option>
+            @foreach (var t in Model.Tumbols) { <option value="@t.Id" selected="@(t.Id == f.TumbolId)">ต.@t.Name</option> }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">หมู่บ้าน</label>
+          <select name="VillageId" id="village" class="form-select" required>
+            <option value="">-- เลือกหมู่บ้าน --</option>
+            @foreach (var v in Model.Villages) { <option value="@v.Id" selected="@(v.Id == f.VillageId)">@v.Name</option> }
+          </select>
+        </div>
+      </div>
+
+      <hr class="my-4" />
+
+      <div class="d-flex gap-4 mb-3">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="HouseMode" id="modeExisting" value="existing" checked="@(f.HouseMode != "new")" />
+          <label class="form-check-label" for="modeExisting">เพิ่มเข้าบ้านที่มีอยู่</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="HouseMode" id="modeNew" value="new" checked="@(f.HouseMode == "new")" />
+          <label class="form-check-label" for="modeNew">สร้างบ้านใหม่</label>
+        </div>
+      </div>
+
+      <div id="boxExisting" class="row g-3">
+        <div class="col-md-8">
+          <label class="form-label small fw-semibold">บ้าน (รหัสบ้าน / บ้านเลขที่)</label>
+          <select name="HouseId" id="house" class="form-select">
+            <option value="">-- เลือกบ้าน --</option>
+            @foreach (var h in Model.Houses) { <option value="@h.Id" selected="@(h.Id == f.HouseId?.ToString())">@h.Name</option> }
+          </select>
+          <div class="form-text">แสดงเฉพาะบ้านในหมู่บ้านและปีสำรวจที่เลือก</div>
+        </div>
+      </div>
+
+      <div id="boxNew" class="row g-3">
+        <div class="col-md-5">
+          <label class="form-label small fw-semibold">รหัสบ้านใหม่</label>
+          <input name="NewHouseCode" value="@f.NewHouseCode" maxlength="20" class="form-control font-monospace" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">บ้านเลขที่</label>
+          <input name="NewHouseNo" value="@f.NewHouseNo" maxlength="30" class="form-control" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ข้อมูลบุคคล -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header py-3 px-4 border-0 fw-bold">
+      <i class="bi bi-person-vcard me-1"></i> ข้อมูลบุคคล
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-2">
+          <label class="form-label small fw-semibold">คำนำหน้า</label>
+          <select name="PrefixId" class="form-select">
+            <option value="">-</option>
+            @foreach (var p in Model.Prefixes) { <option value="@p.Id" selected="@(p.Id == f.PrefixId?.ToString())">@p.Name</option> }
+          </select>
+        </div>
+        <div class="col-md-5">
+          <label class="form-label small fw-semibold">ชื่อ</label>
+          <input name="FirstName" value="@f.FirstName" maxlength="100" class="form-control" required />
+        </div>
+        <div class="col-md-5">
+          <label class="form-label small fw-semibold">นามสกุล</label>
+          <input name="LastName" value="@f.LastName" maxlength="100" class="form-control" />
+        </div>
+
+        <div class="col-md-5">
+          <label class="form-label small fw-semibold">เลขบัตรประชาชน (13 หลัก)</label>
+          <input name="CitizenId" id="cid" value="@f.CitizenId" maxlength="13" inputmode="numeric" pattern="[0-9]{13}" class="form-control font-monospace" />
+          <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" name="IsForeigner" id="foreigner" value="true" checked="@f.IsForeigner" />
+            <label class="form-check-label small" for="foreigner">ชาวต่างชาติ (ไม่ตรวจหลักตรวจสอบ และเว้นเลขบัตรได้)</label>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold">เพศ</label>
+          <select name="GenderId" class="form-select" required>
+            <option value="">-- เลือกเพศ --</option>
+            @foreach (var g in Model.Genders) { <option value="@g.Id" selected="@(g.Id == f.GenderId?.ToString())">@g.Name</option> }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">อาชีพ</label>
+          <select name="OccupationId" class="form-select">
+            <option value="">-</option>
+            @foreach (var o in Model.Occupations) { <option value="@o.Id" selected="@(o.Id == f.OccupationId?.ToString())">@o.Name</option> }
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">สถานภาพสมรส</label>
+          <select name="MaritalStatusId" class="form-select">
+            <option value="">-</option>
+            @foreach (var x in Model.MaritalStatuses) { <option value="@x.Id" selected="@(x.Id == f.MaritalStatusId?.ToString())">@x.Name</option> }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">การศึกษา</label>
+          <select name="EducationId" class="form-select">
+            <option value="">-</option>
+            @foreach (var x in Model.Educations) { <option value="@x.Id" selected="@(x.Id == f.EducationId?.ToString())">@x.Name</option> }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">ศาสนา</label>
+          <select name="ReligionId" class="form-select">
+            <option value="">-</option>
+            @foreach (var x in Model.Religions) { <option value="@x.Id" selected="@(x.Id == f.ReligionId?.ToString())">@x.Name</option> }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">ความสัมพันธ์ในครัวเรือน</label>
+          <select name="RelationshipId" class="form-select">
+            <option value="">-</option>
+            @foreach (var x in Model.Relationships) { <option value="@x.Id" selected="@(x.Id == f.RelationshipId?.ToString())">@x.Name</option> }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">สถานะทางกาย</label>
+          <select name="PhysicalStatusId" class="form-select">
+            <option value="">-</option>
+            @foreach (var x in Model.PhysicalStatuses) { <option value="@x.Id" selected="@(x.Id == f.PhysicalStatusId?.ToString())">@x.Name</option> }
+          </select>
+        </div>
+        <div class="col-12"><label class="form-label small fw-semibold mb-0">วันเกิด (พ.ศ.)</label></div>
+        <div class="col-4 col-md-2">
+          <input type="number" name="BirthDay" value="@f.BirthDay" min="1" max="31" placeholder="วัน" class="form-control" />
+        </div>
+        <div class="col-8 col-md-3">
+          <select name="BirthMonth" class="form-select">
+            <option value="">เดือน</option>
+            @for (var m = 1; m <= 12; m++) { <option value="@m" selected="@(f.BirthMonth == m)">@months[m]</option> }
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <input type="number" name="BirthYear" value="@f.BirthYear" min="2400" max="@nowBe" placeholder="ปี พ.ศ." class="form-control" />
+        </div>
+        <div class="col-12 form-text mt-1">ถ้าไม่ทราบวันหรือเดือน กรอกเฉพาะปีได้ ระบบคำนวณอายุให้อัตโนมัติ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. สถานะ -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header py-3 px-4 border-0 fw-bold">
+      <i class="bi bi-card-checklist me-1"></i> สถานะและบัตรสวัสดิการ
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="IsInformant" id="inf" value="true" checked="@f.IsInformant" />
+            <label class="form-check-label" for="inf">เป็นผู้ให้ข้อมูล</label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="IsHouseRegistration" id="reg" value="true" checked="@f.IsHouseRegistration" />
+            <label class="form-check-label" for="reg">มีชื่อในทะเบียนบ้าน</label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="IsSelfReliance" id="self" value="true" checked="@f.IsSelfReliance" />
+            <label class="form-check-label" for="self">ช่วยเหลือตัวเองได้</label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="IsDisabled" id="dis" value="true" checked="@f.IsDisabled" />
+            <label class="form-check-label" for="dis">เป็นผู้พิการ</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="IsChronicPatient" id="chr" value="true" checked="@f.IsChronicPatient" />
+            <label class="form-check-label" for="chr">เป็นผู้ป่วยโรคเรื้อรัง</label>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">สถานะบัตรสวัสดิการ</label>
+          <select name="WelfareStatusId" class="form-select">
+            <option value="0" selected="@(f.WelfareStatusId == 0)">รอการสำรวจ</option>
+            <option value="1" selected="@(f.WelfareStatusId == 1)">กลุ่ม 1 : ผู้ถือบัตรสวัสดิการฯ</option>
+            <option value="2" selected="@(f.WelfareStatusId == 2)">กลุ่ม 2 : กลุ่มขายขอบ / ตกหล่น</option>
+            <option value="3" selected="@(f.WelfareStatusId == 3)">กลุ่ม 3 : ไม่ใช่กลุ่มเป้าหมาย</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-success rounded-3 px-4 fw-semibold">
+      <i class="bi bi-check-lg"></i> บันทึกข้อมูลประชากร
+    </button>
+    <a class="btn btn-outline-secondary rounded-3 px-4" asp-controller="Report" asp-action="Population">ยกเลิก</a>
+  </div>
+</form>
+
+@section Scripts {
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const amphur = $('amphur'), tumbol = $('tumbol'), village = $('village'), house = $('house'), year = $('year');
+
+  function fill(sel, list, placeholder) {
+    sel.innerHTML = '';
+    sel.add(new Option(placeholder, ''));
+    list.forEach(o => sel.add(new Option(o.name, o.id)));
+    if (list.length === 1) sel.value = list[0].id;
+  }
+  async function load(url) {
+    try { const r = await fetch(url); return r.ok ? await r.json() : []; } catch { return []; }
+  }
+  async function loadHouses() {
+    if (!village.value) { fill(house, [], '-- เลือกบ้าน --'); return; }
+    fill(house, await load('/Population/HouseList?villageId=' + encodeURIComponent(village.value) + '&year=' + encodeURIComponent(year.value)), '-- เลือกบ้าน --');
+    house.value = '';
+  }
+  async function loadVillages() {
+    fill(village, tumbol.value ? await load('/Population/VillageList?tumbolId=' + encodeURIComponent(tumbol.value)) : [], '-- เลือกหมู่บ้าน --');
+    await loadHouses();
+  }
+
+  amphur.addEventListener('change', async () => {
+    fill(tumbol, amphur.value ? await load('/Population/TumbolList?amphurId=' + encodeURIComponent(amphur.value)) : [], '-- เลือกตำบล --');
+    await loadVillages();
+  });
+  tumbol.addEventListener('change', loadVillages);
+  village.addEventListener('change', loadHouses);
+  year.addEventListener('change', loadHouses);
+
+  function toggleMode() {
+    const isNew = $('modeNew').checked;
+    $('boxNew').style.display = isNew ? '' : 'none';
+    $('boxExisting').style.display = isNew ? 'none' : '';
+  }
+  $('modeExisting').addEventListener('change', toggleMode);
+  $('modeNew').addEventListener('change', toggleMode);
+  toggleMode();
+
+  // รับเฉพาะตัวเลขในช่องเลขบัตร
+  $('cid').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 13); });
+})();
+</script>
+}

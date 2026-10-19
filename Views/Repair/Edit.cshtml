@@ -1,0 +1,4 @@
+@model RepairFormVm
+@{ var house = Model.Form.Kind == "house"; ViewData["Title"] = house ? "แก้ไขคำร้องซ่อมแซมบ้าน" : "แก้ไขคำร้องอุปกรณ์ทางการแพทย์"; }
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4></div></div>
+<partial name="_Form" model="Model" />

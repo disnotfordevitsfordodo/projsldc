@@ -1,0 +1,27 @@
+@{ ViewData["Title"] = "เข้าสู่ระบบ"; }
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <div class="text-center mb-4">
+      <div class="auth-logo"><i class="bi bi-geo-alt-fill"></i></div>
+      <h1 class="h4 fw-bold text-dark mb-1">เข้าสู่ระบบ</h1>
+      <div class="page-sub">ระบบศูนย์กลางข้อมูลจังหวัดสกลนคร</div>
+    </div>
+    @if (ViewBag.Error != null) { <div class="alert alert-danger py-2 small"><i class="bi bi-exclamation-triangle-fill me-1"></i>@ViewBag.Error</div> }
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">ชื่อผู้ใช้</label>
+        <div class="input-group"><span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
+          <input name="username" class="form-control" required autofocus autocomplete="username" /></div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label small fw-semibold">รหัสผ่าน</label>
+        <div class="input-group"><span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
+          <input name="password" type="password" class="form-control" required autocomplete="current-password" /></div>
+      </div>
+      <button class="btn btn-primary w-100 py-2">เข้าสู่ระบบ</button>
+    </form>
+    <div class="text-center mt-4 small">
+      <a class="text-decoration-none" asp-controller="OpenData" asp-action="Index"><i class="bi bi-globe2 me-1"></i>ดูและดาวน์โหลดข้อมูลเปิดสำหรับประชาชน</a>
+    </div>
+  </div>
+</div>

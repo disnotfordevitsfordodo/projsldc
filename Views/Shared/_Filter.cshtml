@@ -1,0 +1,24 @@
+@model FilterVm
+<form method="get" asp-action="@Model.Action" class="row g-2 mb-3 no-print">
+  <input type="hidden" name="year" value="@Model.Year" />
+  @if (Model.Tab != null) { <input type="hidden" name="tab" value="@Model.Tab" /> }
+  @if (Model.VillageId != null) { <input type="hidden" name="villageId" value="@Model.VillageId" /> }
+  <div class="col-md-3">
+    <select name="amphurId" class="form-select" onchange="this.form.tumbolId.value=''; this.form.submit()">
+      <option value="">-- ทุกอำเภอ --</option>
+      @foreach (var a in Model.Amphurs) { <option value="@a.Id" selected="@(a.Id == Model.AmphurId)">อ.@a.Name</option> }
+    </select>
+  </div>
+  <div class="col-md-3">
+    <select name="tumbolId" class="form-select" onchange="this.form.submit()">
+      <option value="">-- ทุกตำบล --</option>
+      @foreach (var t in Model.Tumbols) { <option value="@t.Id" selected="@(t.Id == Model.TumbolId)">ต.@t.Name</option> }
+    </select>
+  </div>
+  @if (Model.ShowSearch)
+  {
+    <div class="col-md-4"><div class="input-group">
+      <input name="q" value="@Model.Q" class="form-control" placeholder="ค้นหา ชื่อ / รหัสบ้าน" />
+      <button class="btn btn-primary">ค้นหา</button></div></div>
+  }
+</form>

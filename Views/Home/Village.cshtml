@@ -1,0 +1,26 @@
+@model List<PopRow>
+@{ ViewData["Title"] = "ข้อมูลระดับหมู่บ้าน"; var year = (int)ViewBag.Year; }
+<div class="page-head">
+  <div>
+    <h4 class="page-title"><i class="bi bi-pin-map"></i> ต.@ViewBag.TumbolName อ.@ViewBag.AmphurName</h4>
+    <div class="page-sub">ข้อมูลจำแนกรายหมู่บ้าน ปี พ.ศ. @year</div>
+  </div>
+  <div class="page-actions">
+    <partial name="_YearSelect" model="year" />
+    <a href="@Url.Action("Tambon", "Home", new { amphurId = (string?)ViewBag.AmphurId, year })" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> กลับ</a>
+  </div>
+</div>
+<div class="card overflow-hidden"><div class="table-responsive"><table class="table table-hover mb-0">
+  <thead><tr><th>หมู่</th><th>หมู่บ้าน</th><th class="text-end">ประชากร</th><th class="text-end">ชาย</th><th class="text-end">หญิง</th><th class="text-end">ครัวเรือน</th></tr></thead>
+  <tbody>
+  @foreach (var r in Model)
+  {
+    <tr><td>@r.Moo</td><td class="fw-semibold text-dark">@r.VillageName</td>
+        <td class="text-end">@r.Population.ToString("N0")</td><td class="text-end">@r.Male.ToString("N0")</td>
+        <td class="text-end">@r.Female.ToString("N0")</td><td class="text-end">@r.Households.ToString("N0")</td></tr>
+  }
+  </tbody>
+  <tfoot><tr class="fw-bold"><td colspan="2">รวม</td>
+    <td class="text-end">@Model.Sum(x => x.Population).ToString("N0")</td><td class="text-end">@Model.Sum(x => x.Male).ToString("N0")</td>
+    <td class="text-end">@Model.Sum(x => x.Female).ToString("N0")</td><td class="text-end">@Model.Sum(x => x.Households).ToString("N0")</td></tr></tfoot>
+</table></div></div>

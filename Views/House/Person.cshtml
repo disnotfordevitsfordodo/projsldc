@@ -1,0 +1,163 @@
+@model PersonVm
+@{
+    ViewData["Title"] = "รายละเอียดบุคคล";
+    var a = Model.Assess;
+    var ret = Context.Request.Path + Context.Request.QueryString;
+}
+<div class="page-head">
+  <div>
+    <h4 class="page-title"><i class="bi bi-person-badge"></i> @Model.Person.FullName</h4>
+    <div class="page-sub">รายละเอียดบุคคล · บ้านรหัส @Model.Person.HouseCode</div>
+  </div>
+  <div class="page-actions no-print">
+    <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> ย้อนกลับ</a>
+    <a class="btn btn-sm btn-primary" asp-controller="Member" asp-action="Edit" asp-route-id="@Model.Person.MemberId"><i class="bi bi-pencil-square"></i> แก้ไขข้อมูลบุคคล</a>
+    <form asp-controller="Member" asp-action="Delete" asp-route-id="@Model.Person.MemberId" method="post" class="d-inline" onsubmit="return confirm('ยืนยันการลบ @Model.Person.FullName ?')">
+      <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> ลบบุคคล</button></form>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card mb-3"><div class="card-body">
+      <div class="text-muted mb-2">เลขประจำตัว: @Model.Person.CitizenIdMasked</div>
+      <div class="row">
+        <div class="col-6"><small class="text-muted">ที่อยู่</small><div>บ้านเลขที่ @Model.Person.HouseNo @Model.Person.VillageName ต.@Model.Person.TumbolName อ.@Model.Person.AmphurName</div></div>
+        <div class="col-3"><small class="text-muted">อายุ</small><div>@Model.Person.Age ปี</div></div>
+        <div class="col-3"><small class="text-muted">เพศ</small><div>@Lbl.Gender(Model.Person.GenderId)</div></div>
+      </div>
+      <hr />
+      <span class="badge @Lbl.Css(Model.Person.WelfareStatusId)">@Lbl.Welfare(Model.Person.WelfareStatusId)</span>
+      <a class="ms-2" href="@Url.Action("Detail", "House", new { code = Model.Person.HouseCode, year = Model.Person.SurveyYear })">ดูข้อมูลบ้าน @Model.Person.HouseCode</a>
+    </div></div>
+
+    <div class="card mb-3"><div class="card-header d-flex justify-content-between align-items-center">ข้อมูลอาชีพและรายได้
+      <span class="no-print"><a class="btn btn-sm btn-primary" asp-controller="Member" asp-action="IncomeEdit" asp-route-id="@Model.Person.MemberId">@(Model.Income == null ? "เพิ่ม" : "แก้ไข")</a>
+      @if (Model.Income != null) { <form asp-controller="Member" asp-action="IncomeDelete" asp-route-id="@Model.Person.MemberId" method="post" class="d-inline" onsubmit="return confirm('ลบข้อมูลรายได้?')"><button class="btn btn-sm btn-outline-danger">ลบ</button></form> }</span></div>
+      <div class="card-body">
+      @if (Model.Income == null) { <span class="text-muted">ยังไม่มีข้อมูล</span> }
+      else
+      {
+        <div class="row g-2">
+          <div class="col-md-6"><small class="text-muted">อาชีพหลัก</small><div>@(Model.Income.MainOccupation ?? "-")</div></div>
+          <div class="col-md-6"><small class="text-muted">รายได้จากอาชีพหลัก</small><div>@((Model.Income.MainIncome ?? 0).ToString("N0")) บาท/ปี</div></div>
+          <div class="col-md-6"><small class="text-muted">รายได้จากอาชีพรอง</small><div>@((Model.Income.SecondIncome ?? 0).ToString("N0")) บาท/ปี</div></div>
+          <div class="col-md-6"><small class="text-muted">รายได้อื่นๆ</small><div>@((Model.Income.OtherIncome ?? 0).ToString("N0")) บาท/ปี</div></div>
+          <div class="col-md-6"><small class="text-muted">รายได้รวม</small><div class="text-success fw-bold">@((Model.Income.TotalIncome ?? 0).ToString("N0")) บาท/ปี</div></div>
+          <div class="col-md-6"><small class="text-muted">เงินออม</small><div>@((Model.Income.Saving ?? 0).ToString("N0")) บาท</div></div>
+        </div>
+      }
+    </div></div>
+
+    <div class="card mb-3"><div class="card-header">แก้ไขสถานะบัตรสวัสดิการ</div><div class="card-body">
+      <form asp-controller="House" asp-action="SetWelfare" method="post" class="d-flex gap-2">
+        <input type="hidden" name="memberId" value="@Model.Person.MemberId" />
+        <select name="statusId" class="form-select">
+          <option value="1" selected="@(Model.Person.WelfareStatusId == 1)">กลุ่ม 1 : ผู้ถือบัตรสวัสดิการฯ</option>
+          <option value="2" selected="@(Model.Person.WelfareStatusId == 2)">กลุ่ม 2 : กลุ่มขายขอบ / ตกหล่น</option>
+          <option value="3" selected="@(Model.Person.WelfareStatusId == 3)">กลุ่ม 3 : ไม่ใช่กลุ่มเป้าหมาย</option>
+          <option value="0" selected="@(Model.Person.WelfareStatusId == 0)">รอการสำรวจ</option>
+        </select>
+        <button class="btn btn-primary text-nowrap">บันทึก</button>
+      </form></div></div>
+
+    <div class="card mb-3"><div class="card-header">โรคที่ได้รับการวินิจฉัย</div><div class="card-body p-0">
+      <table class="table table-sm mb-0"><tbody>
+      @foreach (var d in Model.Diseases)
+      {
+        <tr><td>@d.Name @if (!string.IsNullOrEmpty(d.Icd10)) { <small class="text-muted">(@d.Icd10)</small> }</td>
+          <td class="text-muted">@(d.DiagnosedDate?.ToString("dd/MM/yyyy") ?? "-")</td>
+          <td class="text-end text-nowrap no-print"><a class="btn btn-sm btn-outline-primary" asp-controller="Disease" asp-action="Edit" asp-route-id="@d.MemberDiseaseId">แก้ไข</a>
+            <form asp-controller="Disease" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('ลบโรคนี้ออกจากผู้ป่วย?')"><input type="hidden" name="id" value="@d.MemberDiseaseId" /><input type="hidden" name="returnUrl" value="@ret" /><button class="btn btn-sm btn-outline-danger">ลบ</button></form></td></tr>
+      }
+      @if (Model.Diseases.Count == 0) { <tr><td class="text-muted p-3">ยังไม่มีข้อมูลโรค</td></tr> }
+      </tbody></table>
+      <form asp-controller="Disease" asp-action="QuickAdd" method="post" class="d-flex gap-2 p-2 border-top no-print">
+        <input type="hidden" name="memberId" value="@Model.Person.MemberId" />
+        <select name="diseaseId" class="form-select form-select-sm" required><option value="">-- เลือกโรค --</option>
+          @foreach (var o in Model.DiseaseOptions) { <option value="@o.Id">@o.Name</option> }</select>
+        <input type="date" name="diagnosedDate" class="form-control form-control-sm" style="max-width:160px" />
+        <button class="btn btn-sm btn-success text-nowrap">+ เพิ่มโรค</button>
+      </form>
+    </div></div>
+
+    <div class="card mb-3"><div class="card-header">กลุ่มเปราะบาง</div><div class="card-body p-0">
+      <table class="table table-sm mb-0"><tbody>
+      @foreach (var v in Model.Vulnerables)
+      {
+        <tr><td>@v.Name <small class="text-muted">@v.Note</small></td><td class="text-muted">@(v.IdentifiedDate?.ToString("dd/MM/yyyy") ?? "-")</td>
+          <td class="text-end text-nowrap no-print"><a class="btn btn-sm btn-outline-primary" asp-controller="Vulnerable" asp-action="Edit" asp-route-memberId="@Model.Person.MemberId" asp-route-typeId="@v.VulnerableTypeId">แก้ไข</a>
+            <form asp-controller="Vulnerable" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('นำออกจากกลุ่มนี้?')"><input type="hidden" name="memberId" value="@Model.Person.MemberId" /><input type="hidden" name="typeId" value="@v.VulnerableTypeId" /><input type="hidden" name="returnUrl" value="@ret" /><button class="btn btn-sm btn-outline-danger">นำออก</button></form></td></tr>
+      }
+      @if (Model.Vulnerables.Count == 0) { <tr><td class="text-muted p-3">ไม่อยู่ในกลุ่มเปราะบางใด</td></tr> }
+      </tbody></table>
+      <form asp-controller="Vulnerable" asp-action="QuickAdd" method="post" class="d-flex gap-2 p-2 border-top no-print">
+        <input type="hidden" name="memberId" value="@Model.Person.MemberId" />
+        <select name="typeId" class="form-select form-select-sm" required><option value="">-- เลือกกลุ่ม --</option>
+          @foreach (var o in Model.VulnerableOptions) { <option value="@o.Id">@o.Id. @o.Name</option> }</select>
+        <input name="note" maxlength="255" class="form-control form-control-sm" placeholder="หมายเหตุ" />
+        <button class="btn btn-sm btn-success text-nowrap">+ เพิ่มกลุ่ม</button>
+      </form>
+    </div></div>
+
+    <div class="card mb-3"><div class="card-header d-flex justify-content-between align-items-center">คำร้องซ่อมแซมบ้าน
+      <a class="btn btn-sm btn-success no-print" asp-controller="Repair" asp-action="Create" asp-route-kind="house" asp-route-memberId="@Model.Person.MemberId">+ ยื่นคำร้อง</a></div>
+      <div class="card-body p-0"><table class="table table-sm mb-0"><tbody>
+      @foreach (var r in Model.HouseRepairs)
+      {
+        <tr><td>@r.ItemType</td><td class="text-end">@((r.Budget ?? 0).ToString("N0"))</td><td><span class="badge @Lbl.StatusCss(r.Status)">@Lbl.Status(r.Status)</span></td>
+          <td class="text-end text-nowrap no-print"><a class="btn btn-sm btn-outline-primary" asp-controller="Repair" asp-action="Edit" asp-route-kind="house" asp-route-id="@r.RequestId">แก้ไข</a>
+            <form asp-controller="Repair" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('ลบคำร้องนี้?')"><input type="hidden" name="kind" value="house" /><input type="hidden" name="id" value="@r.RequestId" /><input type="hidden" name="returnUrl" value="@ret" /><button class="btn btn-sm btn-outline-danger">ลบ</button></form></td></tr>
+      }
+      @if (Model.HouseRepairs.Count == 0) { <tr><td class="text-muted p-3">ไม่มีคำร้อง</td></tr> }
+      </tbody></table></div></div>
+
+    <div class="card mb-3"><div class="card-header d-flex justify-content-between align-items-center">คำร้องอุปกรณ์ทางการแพทย์
+      <a class="btn btn-sm btn-success no-print" asp-controller="Repair" asp-action="Create" asp-route-kind="medical" asp-route-memberId="@Model.Person.MemberId">+ ยื่นคำร้อง</a></div>
+      <div class="card-body p-0"><table class="table table-sm mb-0"><tbody>
+      @foreach (var r in Model.MedicalRepairs)
+      {
+        <tr><td>@r.ItemType <small class="text-muted">@r.Detail</small></td><td><span class="badge @Lbl.StatusCss(r.Status)">@Lbl.Status(r.Status)</span></td>
+          <td class="text-end text-nowrap no-print"><a class="btn btn-sm btn-outline-primary" asp-controller="Repair" asp-action="Edit" asp-route-kind="medical" asp-route-id="@r.RequestId">แก้ไข</a>
+            <form asp-controller="Repair" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('ลบคำร้องนี้?')"><input type="hidden" name="kind" value="medical" /><input type="hidden" name="id" value="@r.RequestId" /><input type="hidden" name="returnUrl" value="@ret" /><button class="btn btn-sm btn-outline-danger">ลบ</button></form></td></tr>
+      }
+      @if (Model.MedicalRepairs.Count == 0) { <tr><td class="text-muted p-3">ไม่มีคำร้อง</td></tr> }
+      </tbody></table></div></div>
+
+    <div class="card"><div class="card-header">คนในบ้านอยู่ในครัวเรือนเดียวกัน</div><div class="table-responsive"><table class="table table-sm mb-0">
+      <thead><tr><th>เลขประจำตัว</th><th>ชื่อ-นามสกุล</th><th></th></tr></thead><tbody>
+      @foreach (var m in Model.Housemates)
+      {
+        <tr><td>@m.CitizenIdMasked</td><td>@m.FullName</td><td><a class="btn btn-sm btn-outline-primary" href="@Url.Action("Person", "House", new { id = m.MemberId })">รายละเอียด</a></td></tr>
+      }
+      </tbody></table></div></div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card"><div class="card-header d-flex justify-content-between align-items-center">มิติความยากจนและความเปราะบาง
+      <span class="no-print"><a class="btn btn-sm btn-primary" asp-controller="Member" asp-action="AssessEdit" asp-route-id="@Model.Person.MemberId">@(a == null ? "เพิ่ม" : "แก้ไข")</a>
+      @if (a != null) { <form asp-controller="Member" asp-action="AssessDelete" asp-route-id="@Model.Person.MemberId" method="post" class="d-inline" onsubmit="return confirm('ลบผลประเมิน?')"><button class="btn btn-sm btn-outline-danger">ลบ</button></form> }</span></div>
+      <div class="card-body">
+      @if (a == null) { <span class="text-muted">ยังไม่มีผลประเมิน</span> }
+      else
+      {
+        <canvas id="radar" height="260"></canvas>
+        <div class="mt-3 p-2 bg-light rounded"><div class="fw-bold">@a.ResultLabel</div><div class="small">@a.Summary</div></div>
+      }
+    </div></div>
+  </div>
+</div>
+
+@section Scripts {
+@if (a != null)
+{
+<script>
+new Chart(document.getElementById('radar'), {
+  type: 'radar',
+  data: { labels: ['ด้านรายได้', 'ด้านสุขภาพ', 'ภาวะพึ่งพิง', 'ด้านเงินออม', 'สิทธิสวัสดิการ'],
+          datasets: [{ data: [@(a.IncomeScore ?? 0), @(a.HealthScore ?? 0), @(a.DependencyScore ?? 0), @(a.SavingScore ?? 0), @(a.WelfareScore ?? 0)],
+                       backgroundColor: 'rgba(255,193,7,.4)', borderColor: '#ffc107' }] },
+  options: { scales: { r: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
+});
+</script>
+}
+}

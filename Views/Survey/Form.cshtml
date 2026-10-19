@@ -1,0 +1,108 @@
+@model SurveyFormVm
+@using SLDC.Web.Data
+@{
+    ViewData["Title"] = "แบบสำรวจอัปเดตข้อมูล";
+    var sheet = Model.Sheet;
+    var house = sheet?.Houses.FirstOrDefault();
+    string[] Val(string k) => Model.Values.TryGetValue(k, out var v) ? v : Array.Empty<string>();
+}
+@if (house == null)
+{
+  <div class="page-head"><div><h4 class="page-title"><i class="bi bi-ui-checks-grid"></i> เลือกบ้านที่จะสำรวจ</h4>
+    <div class="page-sub">เลือกหมู่บ้านและบ้าน แล้วกรอกแบบสำรวจ (ข้อมูลสมาชิกเดิมจะแสดงให้ตรวจสอบ)</div></div>
+    <div class="page-actions"><a class="btn btn-outline-secondary" asp-action="Index"><i class="bi bi-arrow-left"></i> กลับ</a></div></div>
+  <div class="card"><div class="card-body">
+    <form method="get" asp-action="Form">
+      <partial name="_Picker" model="Model.Picker" />
+      <button class="btn btn-primary mt-3 px-4">เปิดแบบสำรวจ</button>
+    </form>
+  </div></div>
+}
+else
+{
+  <div class="page-head">
+    <div><h4 class="page-title"><i class="bi bi-ui-checks-grid"></i> แบบสำรวจบ้าน @house.HouseCode</h4>
+      <div class="page-sub">บ้านเลขที่ @(house.HouseNo ?? "-") · @sheet!.VillageName ต.@sheet.TumbolName อ.@sheet.AmphurName · ปี @sheet.Year</div></div>
+    <div class="page-actions">
+      <a class="btn btn-outline-secondary" asp-action="Print" asp-route-houseId="@house.HouseId" target="_blank"><i class="bi bi-printer"></i> พิมพ์แบบกระดาษ</a>
+      <a class="btn btn-outline-secondary" asp-action="Index"><i class="bi bi-arrow-left"></i> กลับ</a>
+    </div>
+  </div>
+  @if (Model.Error != null) { <div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>@Model.Error</div> }
+  <form asp-action="Save" method="post" autocomplete="off">
+    <input type="hidden" name="houseId" value="@house.HouseId" />
+    @foreach (var s in SurveyDef.Sections)
+    {
+      <div class="card mb-3">
+        <div class="card-header"><i class="bi @s.Icon me-1"></i> @s.Title <div class="small fw-normal text-muted mt-1">@s.Why</div></div>
+        <div class="card-body">
+          @foreach (var q in s.Qs)
+          {
+            @await Html.PartialAsync("_SurveyQ", new QView { Q = q, Name = "q_" + q.Id, Value = Val("q_" + q.Id) })
+            @if (q.Id == "a_lng")
+            {
+              <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="useGps()"><i class="bi bi-crosshair"></i> ใช้ตำแหน่งปัจจุบันของอุปกรณ์</button>
+            }
+          }
+        </div>
+      </div>
+    }
+
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-people me-1"></i> ส่วนที่ 7 ตรวจสอบสมาชิกในบ้าน
+        <div class="small fw-normal text-muted mt-1">ตรวจสมาชิกทุกคนที่มีในระบบ — ระบุเฉพาะรายที่มีการเปลี่ยนแปลงก็ได้</div></div>
+      <div class="table-responsive"><table class="table align-middle mb-0" style="min-width:900px">
+        <thead><tr><th>ชื่อ-นามสกุล</th><th>อายุ</th>@foreach (var q in SurveyDef.MemberQs) { <th>@q.Label</th> }</tr></thead>
+        <tbody>
+        @foreach (var m in house.Members)
+        {
+          <tr><td class="fw-semibold text-dark">@m.FullName<div class="small text-muted">@m.Relationship</div></td><td>@m.Age</td>
+            @foreach (var q in SurveyDef.MemberQs)
+            {
+              var nm = $"m{m.MemberId}_{q.Id}";
+              <td style="min-width:130px">@await Html.PartialAsync("_SurveyQ", new QView { Q = q, Name = nm, Value = Val(nm), Compact = true })</td>
+            }
+          </tr>
+        }
+        @if (house.Members.Count == 0) { <tr><td colspan="@(SurveyDef.MemberQs.Length + 2)" class="text-center text-muted py-3">ยังไม่มีสมาชิกในระบบ — เพิ่มในช่อง “สมาชิกเพิ่มใหม่” ด้านล่าง</td></tr> }
+        </tbody></table></div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header"><i class="bi bi-person-plus me-1"></i> สมาชิกเพิ่มใหม่ (เกิดใหม่ / ย้ายเข้า)</div>
+      <div class="table-responsive"><table class="table align-middle mb-0" style="min-width:800px">
+        <thead><tr>@foreach (var q in SurveyDef.NewMemberQs) { <th>@q.Label</th> }</tr></thead>
+        <tbody>
+        @for (var i = 1; i <= SurveyDef.NewMemberRows; i++)
+        {
+          <tr>@foreach (var q in SurveyDef.NewMemberQs)
+              {
+                var nm = $"nm{i}_{q.Id}";
+                <td>@await Html.PartialAsync("_SurveyQ", new QView { Q = q, Name = nm, Value = Val(nm), Compact = true })</td>
+              }</tr>
+        }
+        </tbody></table></div>
+    </div>
+
+    <div class="d-flex gap-2 mb-4">
+      <button class="btn btn-success px-4"><i class="bi bi-check-lg"></i> บันทึกแบบสำรวจ</button>
+      <a class="btn btn-outline-secondary px-4" asp-action="Index">ยกเลิก</a>
+    </div>
+  </form>
+}
+
+@section Scripts {
+  @if (house == null) { <partial name="_PickerScript" /> }
+  else
+  {
+    <script>
+      function useGps() {
+        if (!navigator.geolocation) { alert('อุปกรณ์นี้ไม่รองรับการระบุตำแหน่ง'); return; }
+        navigator.geolocation.getCurrentPosition(function (p) {
+          document.getElementById('q_a_lat').value = p.coords.latitude.toFixed(6);
+          document.getElementById('q_a_lng').value = p.coords.longitude.toFixed(6);
+        }, function () { alert('ไม่สามารถอ่านตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง'); }, { enableHighAccuracy: true, timeout: 15000 });
+      }
+    </script>
+  }
+}

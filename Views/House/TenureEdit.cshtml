@@ -1,0 +1,22 @@
+@model TenureFormVm
+@{
+    var f = Model.Form;
+    ViewData["Title"] = f.TenureId == 0 ? "เพิ่มข้อมูลการถือครอง" : "แก้ไขข้อมูลการถือครอง";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+}
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4></div></div>
+<div class="text-muted small mb-3">บ้านรหัส @Model.HouseCode</div>
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<div class="card border-0 shadow-sm rounded-4" style="max-width:700px"><div class="card-body p-4">
+<form asp-action="TenureEdit" method="post" autocomplete="off"><div class="row g-3">
+  <input type="hidden" name="TenureId" value="@f.TenureId" /><input type="hidden" name="HouseId" value="@f.HouseId" />
+  <div class="col-md-6"><label class="form-label small fw-semibold">วัตถุประสงค์การใช้ (ไม่เกิน 10 ตัวอักษร)</label><input name="Purpose" value="@f.Purpose" maxlength="10" class="form-control" required /></div>
+  <div class="col-md-6"><label class="form-label small fw-semibold">ประเภทการถือครอง (ไม่เกิน 10 ตัวอักษร)</label><input name="TenureType" value="@f.TenureType" maxlength="10" class="form-control" required /></div>
+  <div class="col-md-6"><label class="form-label small fw-semibold">พื้นที่ 1</label><input type="number" min="0" step="0.01" name="Area1" value="@(f.Area1?.ToString("0.##", inv))" class="form-control" /></div>
+  <div class="col-md-6"><label class="form-label small fw-semibold">พื้นที่ 2</label><input type="number" min="0" step="0.01" name="Area2" value="@(f.Area2?.ToString("0.##", inv))" class="form-control" /></div>
+  <div class="col-12"><label class="form-label small fw-semibold">เอกสารสิทธิ์</label>
+    <select name="DocumentTypeId" class="form-select"><option value="">-</option>
+      @foreach (var d in Model.Documents) { <option value="@d.Id" selected="@(d.Id == f.DocumentTypeId?.ToString())">@d.Name</option> }</select></div>
+  <div class="col-12"><label class="form-label small fw-semibold">รายละเอียด</label><input name="Detail" value="@f.Detail" maxlength="255" class="form-control" /></div>
+  <div class="col-12"><button class="btn btn-success rounded-3 px-4">บันทึก</button> <a class="btn btn-outline-secondary rounded-3 px-4" href="javascript:history.back()">ยกเลิก</a></div>
+</div></form></div></div>

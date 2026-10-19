@@ -1,0 +1,194 @@
+@model HealthVm
+@{ ViewData["Title"] = "สถิติด้านสุขภาพ"; }
+
+<!-- ส่วนหัวเรื่อง (Header) -->
+<div class="page-head">
+  <div>
+    <h4 class="page-title">
+      <i class="bi bi-heart-pulse-fill"></i> รายงานสถิติด้านสุขภาพ (ปี พ.ศ. @Model.Year)
+    </h4>
+    <div class="page-sub">
+      สรุปทรัพยากรทางการแพทย์และสถิติโรคที่พบบ่อย จังหวัดสกลนคร
+    </div>
+  </div>
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    <a class="btn btn-success btn-sm rounded-3 px-3 fw-semibold shadow-sm" asp-controller="Disease" asp-action="Create"><i class="bi bi-plus-lg"></i> เพิ่มโรคให้ผู้ป่วย</a>
+    <a class="btn btn-outline-primary btn-sm rounded-3 px-3 fw-semibold" asp-controller="Disease" asp-action="Index"><i class="bi bi-clipboard2-pulse"></i> ทะเบียนโรค</a>
+    <a class="btn btn-outline-secondary btn-sm rounded-3 px-3 fw-semibold" asp-controller="HealthResource" asp-action="Index"><i class="bi bi-hospital"></i> จัดการทรัพยากรสุขภาพ</a>
+    <partial name="_YearSelect" model="Model.Year" />
+  </div>
+</div>
+
+<!-- การ์ดสรุปตัวเลข 4 ช่อง สไตล์ซอฟต์ -->
+<div class="row g-3 mb-4">
+  <!-- 1. โรงพยาบาล -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #f0f9ff; border-left: 5px solid #0284c7 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-2 fw-bold text-dark">@Model.Res.Hospital</div>
+          <div class="small text-secondary fw-semibold mt-1">
+            <i class="bi bi-hospital me-1 text-primary"></i>โรงพยาบาล
+          </div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(2, 132, 199, 0.1); width: 54px; height: 54px;">
+          <i class="bi bi-hospital-fill fs-3 text-primary"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. รพ.สต. -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #f0fdf4; border-left: 5px solid #16a34a !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-2 fw-bold text-dark">@Model.Res.Rpst</div>
+          <div class="small text-secondary fw-semibold mt-1">
+            <i class="bi bi-building me-1 text-success"></i>รพ.สต.
+          </div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(22, 163, 74, 0.1); width: 54px; height: 54px;">
+          <i class="bi bi-building-fill-add fs-3 text-success"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. อสม. -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #fefce8; border-left: 5px solid #eab308 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-2 fw-bold text-dark">@Model.Res.Osm</div>
+          <div class="small text-secondary fw-semibold mt-1">
+            <i class="bi bi-person-badge me-1 text-warning"></i>อสม.
+          </div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(234, 179, 8, 0.15); width: 54px; height: 54px;">
+          <i class="bi bi-person-badge-fill fs-3 text-warning"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. แพทย์ประจำ -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #fef2f2; border-left: 5px solid #dc2626 !important;">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="fs-2 fw-bold text-dark">@Model.Res.Doctor</div>
+          <div class="small text-secondary fw-semibold mt-1">
+            <i class="bi bi-person-heart me-1 text-danger"></i>แพทย์ประจำ
+          </div>
+        </div>
+        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: rgba(220, 38, 38, 0.1); width: 54px; height: 54px;">
+          <i class="bi bi-heart-pulse fs-3 text-danger"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- ฝั่งซ้าย: ตารางโรคที่พบบ่อย 10 อันดับ -->
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+      <div class="card-header py-3 px-4 d-flex align-items-center justify-content-between border-0">
+        <div class="fw-bold fs-6 d-flex align-items-center gap-2">
+          <i class="bi bi-list-ol"></i> โรคที่พบบ่อย 10 อันดับ
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+          <thead class="table-light text-secondary border-bottom">
+            <tr>
+              <th class="py-3 px-3 text-center" style="width: 70px;">อันดับ</th>
+              <th class="py-3 px-3">ชื่อโรค</th>
+              <th class="py-3 px-3 text-end" style="width: 140px;">จำนวนผู้ป่วย</th>
+              <th class="py-3 px-4 text-end" style="width: 150px;">อัตรา/1,000 คน</th>
+            </tr>
+          </thead>
+          <tbody>
+            @{ var i = 0; }
+            @foreach (var d in Model.Diseases)
+            {
+              <tr>
+                <td class="text-center text-muted fw-semibold">@(++i)</td>
+                <td class="fw-semibold text-dark">@d.Name</td>
+                <td class="text-end fw-bold text-primary">@d.Patients.ToString("N0")</td>
+                <td class="text-end text-secondary px-4">@(d.RatePer1000?.ToString("0.0") ?? "-")</td>
+              </tr>
+            }
+            @if (Model.Diseases.Count == 0)
+            {
+              <tr>
+                <td colspan="4" class="text-center text-muted py-5">ยังไม่มีข้อมูล</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ฝั่งขวา: กราฟสัดส่วนผู้ป่วยแยกโรค -->
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+      <div class="card-header py-3 px-4 fw-bold border-bottom d-flex align-items-center gap-2">
+        <i class="bi bi-pie-chart-fill text-primary"></i> สัดส่วนผู้ป่วยแยกโรค
+      </div>
+      <div class="card-body p-4 d-flex align-items-center justify-content-center">
+        @if (Model.Diseases.Count == 0)
+        {
+          <div class="text-muted text-center py-5">ยังไม่มีข้อมูลสำหรับสร้างกราฟ</div>
+        }
+        else
+        {
+          <div style="width: 100%; max-width: 320px;">
+            <canvas id="disChart" height="260"></canvas>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+@if (Model.Diseases.Count > 0)
+{
+<script>
+new Chart(document.getElementById('disChart'), {
+  type: 'doughnut',
+  data: { 
+    labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Diseases.Select(x => x.Name))),
+    datasets: [{ 
+      data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Diseases.Select(x => x.Patients))),
+      backgroundColor: [
+        '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', 
+        '#06b6d4', '#ec4899', '#64748b', '#f97316', '#84cc16'
+      ],
+      borderWidth: 2,
+      borderColor: '#ffffff'
+    }] 
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          font: { family: 'Sarabun', size: 12 },
+          padding: 12,
+          usePointStyle: true,
+          pointStyle: 'circle'
+        }
+      }
+    },
+    cutout: '65%'
+  }
+});
+</script>
+}
+}

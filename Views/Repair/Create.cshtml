@@ -1,0 +1,6 @@
+@model RepairFormVm
+@{ var house = Model.Form.Kind == "house"; ViewData["Title"] = house ? "ยื่นคำร้องซ่อมแซมบ้าน" : "ยื่นคำร้องอุปกรณ์ทางการแพทย์"; }
+<div class="page-head"><div><h4 class="page-title"><i class="bi @(house ? "bi-tools" : "bi-bandaid")"></i> @ViewData["Title"]</h4>
+  <div class="page-sub">เลือกผู้ยื่นคำร้องจากพื้นที่ แล้วระบุรายละเอียด</div></div></div>
+<partial name="_Form" model="Model" />
+@section Scripts { <partial name="_PickerScript" /> }

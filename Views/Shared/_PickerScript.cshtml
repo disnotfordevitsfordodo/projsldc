@@ -1,0 +1,42 @@
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const year = $('pk_year'), amphur = $('pk_amphur'), tumbol = $('pk_tumbol'),
+        village = $('pk_village'), house = $('pk_house'), member = $('pk_member');
+
+  function fill(sel, list, placeholder) {
+    if (!sel) return;
+    sel.innerHTML = '';
+    sel.add(new Option(placeholder, ''));
+    list.forEach(o => sel.add(new Option(o.name, o.id)));
+    if (list.length === 1) sel.value = list[0].id;
+  }
+  async function load(url) {
+    try { const r = await fetch(url); return r.ok ? await r.json() : []; } catch { return []; }
+  }
+  async function loadMembers() {
+    if (!member) return;
+    fill(member, house && house.value ? await load('/Lookup/MemberList?houseId=' + encodeURIComponent(house.value)) : [], '-- เลือกบุคคล --');
+  }
+  async function loadHouses() {
+    if (!house) return;
+    const y = year ? year.value : 0;
+    fill(house, village.value ? await load('/Lookup/HouseList?villageId=' + encodeURIComponent(village.value) + '&year=' + encodeURIComponent(y)) : [], '-- เลือกบ้าน --');
+    await loadMembers();
+  }
+  async function loadVillages() {
+    fill(village, tumbol.value ? await load('/Lookup/VillageList?tumbolId=' + encodeURIComponent(tumbol.value)) : [], '-- เลือกหมู่บ้าน --');
+    await loadHouses();
+  }
+  async function loadTumbols() {
+    fill(tumbol, amphur.value ? await load('/Lookup/TumbolList?amphurId=' + encodeURIComponent(amphur.value)) : [], '-- เลือกตำบล --');
+    await loadVillages();
+  }
+
+  amphur.addEventListener('change', loadTumbols);
+  tumbol.addEventListener('change', loadVillages);
+  village.addEventListener('change', loadHouses);
+  if (year) year.addEventListener('change', loadHouses);
+  if (house) house.addEventListener('change', loadMembers);
+})();
+</script>

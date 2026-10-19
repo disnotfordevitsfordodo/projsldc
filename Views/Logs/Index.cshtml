@@ -1,0 +1,25 @@
+@model LogsVm
+@{
+    ViewData["Title"] = "ประวัติการใช้งานระบบ";
+    var pager = new PagerVm { Page = Model.Rows.Page, Pages = Model.Rows.Pages, Total = Model.Rows.Total, Href = p => Url.Action("Index", new { action = Model.Action, q = Model.Q, page = p }) };
+}
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-journal-text"></i> ประวัติการใช้งานระบบ</h4></div></div>
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-3"><select name="action" class="form-select" onchange="this.form.submit()"><option value="">-- ทุกการกระทำ --</option>
+    @foreach (var a in Model.Actions) { <option value="@a" selected="@(a == Model.Action)">@a</option> }</select></div>
+  <div class="col-md-4"><div class="input-group"><input name="q" value="@Model.Q" class="form-control" placeholder="ผู้ใช้ / รายละเอียด / รหัสอ้างอิง" /><button class="btn btn-primary">ค้นหา</button></div></div>
+</form>
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0" style="font-size:.85rem">
+    <thead class="table-light"><tr><th>เวลา</th><th>ผู้ใช้</th><th>การกระทำ</th><th>รหัสอ้างอิง</th><th>รายละเอียด</th><th>IP</th></tr></thead><tbody>
+    @foreach (var r in Model.Rows.Items)
+    { <tr><td class="text-nowrap">@r.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</td><td>@r.Username</td><td><span class="badge bg-light text-dark border">@r.ActionType</span></td><td>@r.TargetId</td><td>@r.Details</td><td class="text-muted">@r.IpAddress</td></tr> }
+    @if (Model.Rows.Items.Count == 0) { <tr><td colspan="6" class="text-center text-muted py-4">ไม่พบรายการ</td></tr> }
+    </tbody></table></div>
+  <partial name="_Pager" model="pager" />
+</div>
+<form asp-action="Purge" method="post" class="d-flex gap-2 align-items-center" onsubmit="return confirm('ยืนยันการล้างบันทึกเก่า?')">
+  <span class="small text-muted">ล้างบันทึกที่เก่ากว่า</span>
+  <input type="number" name="days" value="180" min="30" class="form-control form-control-sm" style="width:90px" /><span class="small text-muted">วัน</span>
+  <button class="btn btn-sm btn-outline-danger">ล้างบันทึกเก่า</button>
+</form>

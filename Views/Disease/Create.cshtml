@@ -1,0 +1,16 @@
+@model DiseaseFormVm
+@{ var f = Model.Form; ViewData["Title"] = "เพิ่มโรคให้ผู้ป่วย"; }
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-clipboard2-plus"></i> @ViewData["Title"]</h4></div></div>
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<form asp-action="Create" method="post" autocomplete="off">
+  <div class="card border-0 shadow-sm rounded-4 mb-4"><div class="card-header fw-bold py-3 px-4">เลือกผู้ป่วย</div>
+    <div class="card-body p-4"><partial name="_Picker" model="Model.Picker" /></div></div>
+  <div class="card border-0 shadow-sm rounded-4 mb-4"><div class="card-header fw-bold py-3 px-4">ข้อมูลโรค</div><div class="card-body p-4"><div class="row g-3">
+    <div class="col-md-8"><label class="form-label small fw-semibold">โรค</label><select name="DiseaseId" class="form-select" required><option value="">-- เลือกโรค --</option>
+      @foreach (var d in Model.Diseases) { <option value="@d.Id" selected="@(d.Id == f.DiseaseId?.ToString())">@d.Name</option> }</select></div>
+    <div class="col-md-4"><label class="form-label small fw-semibold">วันที่วินิจฉัย</label><input type="date" name="DiagnosedDate" value="@(f.DiagnosedDate?.ToString("yyyy-MM-dd"))" class="form-control" /></div>
+  </div></div></div>
+  <button class="btn btn-success rounded-3 px-4 fw-semibold"><i class="bi bi-check-lg"></i> บันทึก</button>
+  <a class="btn btn-outline-secondary rounded-3 px-4" href="javascript:history.back()">ยกเลิก</a>
+</form>
+@section Scripts { <partial name="_PickerScript" /> }

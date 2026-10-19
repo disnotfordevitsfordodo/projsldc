@@ -1,0 +1,14 @@
+@model AmphurFormVm
+@{ var f = Model.Form; ViewData["Title"] = f.IsNew ? "เพิ่มอำเภอ" : "แก้ไขอำเภอ"; }
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4></div></div>
+@if (Model.Error != null) { <div class="alert alert-danger">@Model.Error</div> }
+<div class="card" style="max-width:600px"><div class="card-body">
+<form asp-action="AmphurEdit" method="post">
+  <input type="hidden" name="IsNew" value="@f.IsNew.ToString().ToLower()" />
+  <div class="mb-3"><label class="form-label">รหัสอำเภอ (4 หลัก)</label>
+    @if (f.IsNew) { <input name="AmphurId" value="@f.AmphurId" class="form-control" maxlength="4" required /> }
+    else { <input name="AmphurId" value="@f.AmphurId" class="form-control" readonly /> }</div>
+  <div class="mb-3"><label class="form-label">ชื่ออำเภอ</label><input name="NameTh" value="@f.NameTh" class="form-control" maxlength="100" required /></div>
+  <div class="mb-3"><label class="form-label">ชื่ออำเภอ (อังกฤษ)</label><input name="NameEn" value="@f.NameEn" class="form-control" maxlength="100" /></div>
+  <button class="btn btn-primary">บันทึก</button> <a class="btn btn-outline-secondary" asp-action="Index" asp-route-tab="amphur">ยกเลิก</a>
+</form></div></div>

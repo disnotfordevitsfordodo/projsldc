@@ -1,0 +1,11 @@
+@model PagerVm
+@if (Model.Pages > 1)
+{
+  <div class="d-flex justify-content-between align-items-center p-2 no-print">
+    <span class="small text-muted">หน้า @Model.Page / @Model.Pages (@Model.Total.ToString("N0") รายการ)</span>
+    <div class="btn-group btn-group-sm">
+      @if (Model.Page > 1) { <a class="btn btn-outline-secondary" href="@Model.Href(Model.Page - 1)">ก่อนหน้า</a> }
+      @if (Model.Page < Model.Pages) { <a class="btn btn-outline-secondary" href="@Model.Href(Model.Page + 1)">ถัดไป</a> }
+    </div>
+  </div>
+}

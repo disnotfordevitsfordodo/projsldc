@@ -1,0 +1,22 @@
+@model IncomeFormVm
+@{
+    var f = Model.Form; ViewData["Title"] = "แก้ไขอาชีพและรายได้";
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    string V(decimal? d) => d?.ToString("0.##", inv) ?? "";
+}
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4></div></div><div class="text-muted small mb-3">@Model.MemberName</div>
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<div class="card border-0 shadow-sm rounded-4" style="max-width:760px"><div class="card-body p-4">
+<form asp-action="IncomeEdit" method="post" autocomplete="off"><input type="hidden" name="MemberId" value="@f.MemberId" /><div class="row g-3">
+  <div class="col-md-6"><label class="form-label small fw-semibold">อาชีพหลัก</label><select name="MainOccupationId" class="form-select"><option value="">-</option>
+    @foreach (var o in Model.Occupations) { <option value="@o.Id" selected="@(o.Id == f.MainOccupationId?.ToString())">@o.Name</option> }</select></div>
+  <div class="col-md-6"><label class="form-label small fw-semibold">อาชีพรอง</label><select name="SecondOccupationId" class="form-select"><option value="">-</option>
+    @foreach (var o in Model.Occupations) { <option value="@o.Id" selected="@(o.Id == f.SecondOccupationId?.ToString())">@o.Name</option> }</select></div>
+  <div class="col-md-6"><label class="form-label small fw-semibold">รายได้อาชีพหลัก (บาท/ปี)</label><input type="number" min="0" step="0.01" name="MainIncome" value="@V(f.MainIncome)" class="form-control" /></div>
+  <div class="col-md-6"><label class="form-label small fw-semibold">รายได้อาชีพรอง (บาท/ปี)</label><input type="number" min="0" step="0.01" name="SecondIncome" value="@V(f.SecondIncome)" class="form-control" /></div>
+  <div class="col-md-6"><label class="form-label small fw-semibold">รายได้อื่น ๆ (บาท/ปี)</label><input type="number" min="0" step="0.01" name="OtherIncome" value="@V(f.OtherIncome)" class="form-control" /></div>
+  <div class="col-md-6"><label class="form-label small fw-semibold">รายได้ออนไลน์ (บาท/ปี)</label><input type="number" min="0" step="0.01" name="OnlineIncome" value="@V(f.OnlineIncome)" class="form-control" /></div>
+  <div class="col-md-6"><label class="form-label small fw-semibold">เงินออม (บาท)</label><input type="number" min="0" step="0.01" name="Saving" value="@V(f.Saving)" class="form-control" /></div>
+  <div class="col-12 form-text">รายได้รวมคำนวณให้อัตโนมัติจากรายได้ทั้ง 4 ช่อง</div>
+  <div class="col-12"><button class="btn btn-success rounded-3 px-4">บันทึก</button> <a class="btn btn-outline-secondary rounded-3 px-4" href="javascript:history.back()">ยกเลิก</a></div>
+</div></form></div></div>

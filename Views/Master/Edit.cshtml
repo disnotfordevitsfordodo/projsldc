@@ -1,0 +1,18 @@
+@model MasterFormVm
+@{ var d = Model.Def; ViewData["Title"] = (Model.IsNew ? "เพิ่ม" : "แก้ไข") + d.Title; }
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4></div></div>
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<div class="card border-0 shadow-sm rounded-4" style="max-width:600px"><div class="card-body p-4">
+<form asp-action="Edit" method="post" autocomplete="off">
+  <input type="hidden" name="key" value="@d.Key" />
+  <input type="hidden" name="isNew" value="@Model.IsNew.ToString().ToLower()" />
+  @if (!Model.IsNew) { <input type="hidden" name="id" value="@Model.Id" /> }
+  @foreach (var f in d.Fields)
+  {
+    Model.Values.TryGetValue(f.Col, out var v);
+    <div class="mb-3"><label class="form-label small fw-semibold">@f.Label@(f.Required ? " *" : "")</label>
+      <input name="f_@f.Col" value="@v" maxlength="@f.MaxLen" class="form-control" required="@f.Required" /></div>
+  }
+  <button class="btn btn-success rounded-3 px-4">บันทึก</button>
+  <a class="btn btn-outline-secondary rounded-3 px-4" asp-action="Index" asp-route-key="@d.Key">ยกเลิก</a>
+</form></div></div>

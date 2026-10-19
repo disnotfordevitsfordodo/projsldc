@@ -1,0 +1,73 @@
+@model FieldSheetVm
+@using SLDC.Web.Data
+@{
+    ViewData["Title"] = "แบบสำรวจ (พิมพ์)";
+    var blank = ViewBag.Blank == true;
+    int total = ViewBag.TotalHouses is int th ? th : Model.Houses.Count;
+    int skip = ViewBag.Skip is int sk ? sk : 0;
+}
+<div class="page-head no-print">
+  <div><h4 class="page-title"><i class="bi bi-printer"></i> แบบสำรวจอัปเดตข้อมูลครัวเรือน (พิมพ์)</h4>
+    <div class="page-sub">@(blank ? "แบบเปล่า — เหมาะสำหรับถ่ายเอกสารหลายชุด" : $"พิมพ์พร้อมข้อมูลเดิม {Model.Houses.Count} หลัง จากทั้งหมด {total} หลัง")</div></div>
+  <div class="page-actions">
+    @if (!blank && skip + 40 < total)
+    {
+      <a class="btn btn-outline-primary" asp-action="Print" asp-route-villageId="@Model.VillageId" asp-route-year="@Model.Year" asp-route-skip="@(skip + 40)">ชุดถัดไป (หลังที่ @(skip + 41)–@Math.Min(total, skip + 80))</a>
+    }
+    <button class="btn btn-primary" onclick="window.print()"><i class="bi bi-printer"></i> พิมพ์</button>
+  </div>
+</div>
+
+@foreach (var h in Model.Houses)
+{
+  <div class="paper page-break">
+    <h1>แบบสำรวจอัปเดตข้อมูลครัวเรือน จังหวัดสกลนคร ปี พ.ศ. @(Model.Year == 0 ? "........" : Model.Year.ToString())</h1>
+    <div class="qrow">รหัสบ้าน: @(blank ? Html.Raw("<span class=\"line\" style=\"min-width:40mm\"></span>") : Html.Raw("<b>" + System.Net.WebUtility.HtmlEncode(h.HouseCode) + "</b>"))
+      &nbsp; บ้านเลขที่: @(blank ? Html.Raw("<span class=\"line\"></span>") : Html.Raw("<b>" + System.Net.WebUtility.HtmlEncode(h.HouseNo ?? "-") + "</b>"))
+      &nbsp; หมู่ที่: @(blank ? Html.Raw("<span class=\"line\" style=\"min-width:12mm\"></span>") : Html.Raw("<b>" + Model.Moo + "</b>"))</div>
+    <div class="qrow">หมู่บ้าน: @(blank ? Html.Raw("<span class=\"line\"></span>") : Html.Raw("<b>" + System.Net.WebUtility.HtmlEncode(Model.VillageName) + "</b>"))
+      &nbsp; ตำบล: @(blank ? Html.Raw("<span class=\"line\"></span>") : Html.Raw("<b>" + System.Net.WebUtility.HtmlEncode(Model.TumbolName) + "</b>"))
+      &nbsp; อำเภอ: @(blank ? Html.Raw("<span class=\"line\"></span>") : Html.Raw("<b>" + System.Net.WebUtility.HtmlEncode(Model.AmphurName) + "</b>"))</div>
+    @if (!blank && !string.IsNullOrWhiteSpace(h.Nearby)) { <div class="qrow">จุดสังเกต: @h.Nearby</div> }
+
+    @foreach (var s in SurveyDef.Sections)
+    {
+      <h2>@s.Title</h2>
+      @foreach (var q in s.Qs)
+      {
+        <div class="qrow">@q.Label :
+          @if (q.Opts != null) { foreach (var o in q.Opts) { <span><span class="box"></span>@o</span> } }
+          else if (q.Type == "textarea") { <div class="line" style="display:block;margin-top:3mm"></div><div class="line" style="display:block;margin-top:3mm"></div> }
+          else { <span class="line" style="min-width:@(q.Type == "text" ? "70mm" : "35mm")"></span> }
+        </div>
+      }
+    }
+
+    <h2>ส่วนที่ 7 ตรวจสอบสมาชิกในบ้าน (ข้อมูลเดิมในระบบ)</h2>
+    <table>
+      <thead><tr><th style="width:6mm">#</th><th>ชื่อ-นามสกุล / อายุ</th>
+        <th>สถานะที่พบ</th><th>อาชีพปัจจุบัน</th><th>รายได้/เดือน</th><th>บัตรสวัสดิการ</th><th>พิการ</th><th>ป่วยเรื้อรัง</th></tr></thead>
+      <tbody>
+      @{ var rows = Math.Max(blank ? 8 : h.Members.Count, 1); }
+      @for (var i = 0; i < rows; i++)
+      {
+        var m = i < h.Members.Count ? h.Members[i] : null;
+        <tr style="height:9mm"><td class="text-center">@(i + 1)</td>
+          <td>@if (m != null) { @m.FullName <span>(@m.Age ปี)</span> }</td>
+          <td style="font-size:8.5pt"><span class="box" style="margin-left:0"></span>อยู่ <span class="box"></span>ย้าย <span class="box"></span>เสียชีวิต <span class="box"></span>ไม่พบ</td>
+          <td>@m?.Occupation</td><td></td>
+          <td style="font-size:8.5pt"><span class="box" style="margin-left:0"></span>มี <span class="box"></span>ไม่มี</td>
+          <td style="font-size:8.5pt"><span class="box" style="margin-left:0"></span>ใช่ <span class="box"></span>ไม่</td>
+          <td style="font-size:8.5pt"><span class="box" style="margin-left:0"></span>ใช่ <span class="box"></span>ไม่</td></tr>
+      }
+      </tbody>
+    </table>
+    <h2>สมาชิกเพิ่มใหม่ (เกิดใหม่ / ย้ายเข้า)</h2>
+    <table>
+      <thead><tr>@foreach (var q in SurveyDef.NewMemberQs) { <th>@q.Label</th> }</tr></thead>
+      <tbody>@for (var i = 0; i < SurveyDef.NewMemberRows; i++) { <tr style="height:9mm">@foreach (var q in SurveyDef.NewMemberQs) { <td></td> }</tr> }</tbody>
+    </table>
+    <div class="qrow mt-3" style="font-size:9pt">ข้อมูลในแบบสำรวจนี้ใช้เพื่อการวางแผนช่วยเหลือและปรับปรุงข้อมูลประชากรเท่านั้น ผู้ให้ข้อมูลมีสิทธิ์ขอแก้ไขหรือถอนความยินยอมได้</div>
+    <div class="qrow" style="margin-top:6mm">ลงชื่อผู้ให้ข้อมูล <span class="line"></span> &nbsp;&nbsp; ลงชื่อผู้สำรวจ <span class="line"></span></div>
+  </div>
+}

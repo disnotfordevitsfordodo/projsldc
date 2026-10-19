@@ -1,0 +1,34 @@
+@model ResourceFormVm
+@{ var f = Model.Form; ViewData["Title"] = f.ResourceId == 0 ? "เพิ่มทรัพยากรสุขภาพ" : "แก้ไขทรัพยากรสุขภาพ"; }
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-pencil-square"></i> @ViewData["Title"]</h4></div></div>
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<div class="card border-0 shadow-sm rounded-4" style="max-width:640px"><div class="card-body p-4">
+<form asp-action="Edit" method="post" autocomplete="off">
+  <input type="hidden" name="ResourceId" value="@f.ResourceId" />
+  <div class="mb-3"><label class="form-label small fw-semibold">ประเภท</label>
+    <select name="ResourceType" class="form-select">
+      <option value="hospital" selected="@(f.ResourceType == "hospital")">โรงพยาบาล</option>
+      <option value="rpst" selected="@(f.ResourceType == "rpst")">รพ.สต.</option>
+      <option value="osm" selected="@(f.ResourceType == "osm")">อสม.</option>
+      <option value="doctor" selected="@(f.ResourceType == "doctor")">แพทย์ประจำ</option></select></div>
+  <div class="mb-3"><label class="form-label small fw-semibold">ชื่อ</label><input name="Name" value="@f.Name" maxlength="200" class="form-control" required /></div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6"><label class="form-label small fw-semibold">อำเภอ</label>
+      <select name="AmphurId" id="amphur" class="form-select"><option value="">-- เลือกอำเภอ --</option>
+        @foreach (var a in Model.Amphurs) { <option value="@a.Id" selected="@(a.Id == f.AmphurId)">อ.@a.Name</option> }</select></div>
+    <div class="col-md-6"><label class="form-label small fw-semibold">ตำบล</label>
+      <select name="TumbolId" id="tumbol" class="form-select"><option value="">-- ไม่ระบุตำบล --</option>
+        @foreach (var t in Model.Tumbols) { <option value="@t.Id" selected="@(t.Id == f.TumbolId)">ต.@t.Name</option> }</select></div>
+  </div>
+  <button class="btn btn-success rounded-3 px-4">บันทึก</button> <a class="btn btn-outline-secondary rounded-3 px-4" asp-action="Index">ยกเลิก</a>
+</form></div></div>
+@section Scripts {
+<script>
+  const amphur = document.getElementById('amphur'), tumbol = document.getElementById('tumbol');
+  amphur.addEventListener('change', async () => {
+    tumbol.innerHTML = ''; tumbol.add(new Option('-- ไม่ระบุตำบล --', ''));
+    if (!amphur.value) return;
+    try { const r = await fetch('/Lookup/TumbolList?amphurId=' + encodeURIComponent(amphur.value)); (await r.json()).forEach(o => tumbol.add(new Option('ต.' + o.name, o.id))); } catch { }
+  });
+</script>
+}

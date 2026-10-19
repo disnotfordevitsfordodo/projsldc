@@ -1,0 +1,40 @@
+@model UserFormVm
+@{
+    var f = Model.Form;
+    ViewData["Title"] = f.UserId == 0 ? "เพิ่มผู้ใช้งาน" : "แก้ไขผู้ใช้งาน";
+}
+<div class="page-head"><div><h4 class="page-title"><i class="bi bi-person-gear"></i> @ViewData["Title"]</h4></div></div>
+@if (Model.Error != null) { <div class="alert alert-danger border-0 shadow-sm rounded-4">@Model.Error</div> }
+<div class="card border-0 shadow-sm rounded-4" style="max-width:640px"><div class="card-body p-4">
+<form asp-action="Edit" method="post" autocomplete="off">
+  <input type="hidden" name="UserId" value="@f.UserId" />
+  <div class="mb-3"><label class="form-label small fw-semibold">ชื่อผู้ใช้ (Username)</label>
+    <input name="Username" value="@f.Username" class="form-control" maxlength="50" required /></div>
+  <div class="mb-3"><label class="form-label small fw-semibold">ชื่อ-นามสกุล</label>
+    <input name="FullName" value="@f.FullName" class="form-control" maxlength="100" /></div>
+  <div class="mb-3"><label class="form-label small fw-semibold">สิทธิ์การใช้งาน</label>
+    <select name="Role" id="role" class="form-select">
+      <option value="admin" selected="@(f.Role == "admin")">ผู้ดูแลระบบ (ทุกพื้นที่)</option>
+      <option value="amphur" selected="@(f.Role == "amphur")">ระดับอำเภอ</option>
+      <option value="staff" selected="@(f.Role == "staff")">เจ้าหน้าที่ตำบล</option>
+    </select></div>
+  <div class="mb-3" id="boxAmphur"><label class="form-label small fw-semibold">อำเภอ</label>
+    <select name="AmphurId" class="form-select"><option value="">-- เลือกอำเภอ --</option>
+      @foreach (var a in Model.Amphurs) { <option value="@a.Id" selected="@(a.Id == f.AmphurId)">อ.@a.Name</option> }</select></div>
+  <div class="mb-3" id="boxTumbol"><label class="form-label small fw-semibold">ตำบล</label>
+    <select name="TumbolId" class="form-select"><option value="">-- เลือกตำบล --</option>
+      @foreach (var t in Model.Tumbols) { <option value="@t.Id" selected="@(t.Id == f.TumbolId)">@t.Name</option> }</select></div>
+  <div class="mb-3"><label class="form-label small fw-semibold">@(f.UserId == 0 ? "รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)" : "รหัสผ่านใหม่ (เว้นว่างถ้าไม่เปลี่ยน)")</label>
+    <input type="password" name="Password" class="form-control" autocomplete="new-password" /></div>
+  <div class="form-check mb-4"><input class="form-check-input" type="checkbox" name="IsActive" id="act" value="true" checked="@f.IsActive" />
+    <label class="form-check-label" for="act">เปิดใช้งานบัญชี</label></div>
+  <button class="btn btn-success rounded-3 px-4">บันทึก</button>
+  <a class="btn btn-outline-secondary rounded-3 px-4" asp-action="Index">ยกเลิก</a>
+</form></div></div>
+@section Scripts {
+<script>
+  const role = document.getElementById('role');
+  function t() { boxAmphur.style.display = role.value === 'amphur' ? '' : 'none'; boxTumbol.style.display = role.value === 'staff' ? '' : 'none'; }
+  role.addEventListener('change', t); t();
+</script>
+}

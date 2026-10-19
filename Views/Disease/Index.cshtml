@@ -1,0 +1,42 @@
+@model DiseaseListVm
+@{
+    ViewData["Title"] = "ทะเบียนโรคของผู้ป่วย";
+    var f = Model.Filter;
+    var pager = new PagerVm { Page = Model.Rows.Page, Pages = Model.Rows.Pages, Total = Model.Rows.Total,
+        Href = p => Url.Action("Index", new { year = f.Year, amphurId = f.AmphurId, tumbolId = f.TumbolId, diseaseId = Model.DiseaseId, q = f.Q, page = p }) };
+    var ret = Context.Request.Path + Context.Request.QueryString;
+}
+<div class="page-head">
+  <div><h4 class="page-title"><i class="bi bi-clipboard2-pulse"></i> ทะเบียนโรคของผู้ป่วย</h4>
+    <div class="page-sub">บันทึก แก้ไข และลบข้อมูลโรคของประชากรรายบุคคล ตัวเลขในรายงานสถิติสุขภาพจะอัปเดตตาม</div></div>
+  <div class="page-actions">
+    <partial name="_YearSelect" model="f.Year" />
+    <a class="btn btn-success" asp-action="Create"><i class="bi bi-plus-lg"></i> เพิ่มโรคให้ผู้ป่วย</a>
+    @if (User.IsInRole("admin")) { <a class="btn btn-outline-secondary" asp-controller="Master" asp-action="Index" asp-route-key="disease">จัดการรายชื่อโรค</a> }
+  </div>
+</div>
+<form method="get" class="row g-2 mb-3">
+  <input type="hidden" name="year" value="@f.Year" />
+  <div class="col-md-3"><select name="amphurId" class="form-select" onchange="this.form.tumbolId.value=''; this.form.submit()"><option value="">-- เลือกอำเภอ --</option>
+    @foreach (var a in f.Amphurs) { <option value="@a.Id" selected="@(a.Id == f.AmphurId)">อ.@a.Name</option> }</select></div>
+  <div class="col-md-3"><select name="tumbolId" class="form-select" onchange="this.form.submit()"><option value="">-- ทุกตำบล --</option>
+    @foreach (var t in f.Tumbols) { <option value="@t.Id" selected="@(t.Id == f.TumbolId)">ต.@t.Name</option> }</select></div>
+  <div class="col-md-3"><select name="diseaseId" class="form-select" onchange="this.form.submit()"><option value="">-- ทุกโรค --</option>
+    @foreach (var d in Model.Diseases) { <option value="@d.Id" selected="@(d.Id == Model.DiseaseId?.ToString())">@d.Name</option> }</select></div>
+  <div class="col-md-3"><div class="input-group"><input name="q" value="@f.Q" class="form-control" placeholder="ชื่อ / รหัสบ้าน" /><button class="btn btn-primary">ค้นหา</button></div></div>
+</form>
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0" style="font-size:.88rem">
+    <thead class="table-light"><tr><th>ชื่อ-นามสกุล</th><th>โรค</th><th>วันที่วินิจฉัย</th><th>รหัสบ้าน</th><th>หมู่บ้าน/ตำบล/อำเภอ</th><th></th></tr></thead><tbody>
+    @foreach (var r in Model.Rows.Items)
+    {
+      <tr><td class="fw-semibold"><a class="text-decoration-none" asp-controller="House" asp-action="Person" asp-route-id="@r.MemberId">@r.FullName</a></td>
+        <td>@r.DiseaseName</td><td>@(r.DiagnosedDate?.ToString("dd/MM/yyyy") ?? "-")</td><td class="font-monospace">@r.HouseCode</td>
+        <td class="text-secondary">@r.VillageName / ต.@r.TumbolName / อ.@r.AmphurName</td>
+        <td class="text-nowrap text-end"><a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@r.MemberDiseaseId">แก้ไข</a>
+          <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('ลบโรค @r.DiseaseName ของ @r.FullName ?')"><input type="hidden" name="id" value="@r.MemberDiseaseId" /><input type="hidden" name="returnUrl" value="@ret" /><button class="btn btn-sm btn-danger">ลบ</button></form></td></tr>
+    }
+    @if (Model.Rows.Items.Count == 0) { <tr><td colspan="6" class="text-center text-muted py-4">@(Model.HasArea ? "ไม่พบข้อมูล" : "กรุณาเลือกอำเภอหรือตำบลก่อน เพื่อแสดงรายการ")</td></tr> }
+    </tbody></table></div>
+  <partial name="_Pager" model="pager" />
+</div>
